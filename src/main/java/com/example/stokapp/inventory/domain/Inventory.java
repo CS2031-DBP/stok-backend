@@ -12,8 +12,8 @@ public class Inventory {
     private Long id;
 
     @OneToOne
-    //@Column(name = "product", nullable = false)
-    @PrimaryKeyJoinColumn
+    //@Column(name = "product", nullable = false) --con este no corre
+    //@PrimaryKeyJoinColumn --con este sí corre
     private Product product;
 
     @Column(name = "stock", nullable = false)

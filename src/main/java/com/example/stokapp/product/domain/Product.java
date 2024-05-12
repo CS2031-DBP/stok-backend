@@ -24,7 +24,7 @@ public class Product {
     private Category category;
 
     @OneToOne
-    //@Column(name = "qr_code", nullable = false)
-    @PrimaryKeyJoinColumn
+    //@Column(name = "qr_code", nullable = false) --con este no corre
+    //@PrimaryKeyJoinColumn -- con este sí corre
     private QR qr;
 }
