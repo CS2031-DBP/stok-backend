@@ -23,8 +23,8 @@ public class Product {
     @Column(name = "category", nullable = false)
     private Category category;
 
-    @OneToOne
-    //@Column(name = "qr_code", nullable = false) --con este no corre
-    //@PrimaryKeyJoinColumn -- con este sí corre
+    @OneToOne //(mappedBy = "qr_code", cascade = CascadeType.ALL)
+    //@Column(name = "qr_code", nullable = false) //con este no corre
+    @PrimaryKeyJoinColumn //-- con este sí corre
     private QR qr;
 }
