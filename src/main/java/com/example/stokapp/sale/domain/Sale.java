@@ -1,5 +1,6 @@
 package com.example.stokapp.sale.domain;
 
+import com.example.stokapp.inventory.domain.Inventory;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,4 +25,8 @@ public class Sale {
 
     @Column(name = "amount", nullable = false)
     private Integer amount;
+
+    @ManyToOne
+    @JoinColumn(name = "inventory_id", nullable = false)
+    private Inventory inventory;
 }
