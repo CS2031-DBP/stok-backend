@@ -5,8 +5,10 @@ import lombok.Data;
 
 import java.time.ZonedDateTime;
 
-@Entity
 @Data
+@Entity
+@Table(name = "users")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

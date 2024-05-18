@@ -1,5 +1,6 @@
 package com.example.stokapp.owner.domain;
 
+import com.example.stokapp.sale.domain.Sale;
 import com.example.stokapp.supplier.domain.Supplier;
 import com.example.stokapp.user.domain.User;
 import jakarta.persistence.*;
@@ -9,12 +10,14 @@ import java.util.List;
 
 @Entity
 @Data
+@Table(name = "owners")
 public class Owner extends User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @OneToMany
-    @Column(name = "suppliers", nullable = false)
+    @Column(name = "suppliers")
     private List<Supplier> suppliers;
+
+    @OneToMany
+    @Column(name = "suppliers")
+    private List<Sale> sales;
 }
