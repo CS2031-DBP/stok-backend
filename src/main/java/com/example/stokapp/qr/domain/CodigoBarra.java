@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Entity
 @Data
-public class QR {
+public class CodigoBarra {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
