@@ -1,5 +1,6 @@
 package com.example.stokapp.supplier.domain;
 
+import com.example.stokapp.owner.domain.Owner;
 import jakarta.persistence.*;
 import lombok.Data;
 

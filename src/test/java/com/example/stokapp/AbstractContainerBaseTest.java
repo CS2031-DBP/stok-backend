@@ -13,9 +13,9 @@ public abstract class AbstractContainerBaseTest {
 
     static {
         postgresqlContainer = new PostgreSQLContainer<>("postgres:latest")
-                .withDatabaseName("e2eTestDb")
-                .withUsername("e2e")
-                .withPassword("e2e");
+                .withDatabaseName("atrapagemas")
+                .withUsername("postgres")
+                .withPassword("postgres");
 
         postgresqlContainer.start();
     }
