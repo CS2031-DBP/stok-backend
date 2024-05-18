@@ -1,6 +1,6 @@
 package com.example.stokapp.product.domain;
 
-import com.example.stokapp.qr.domain.QR;
+import com.example.stokapp.qr.domain.CodigoBarra;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,5 +25,5 @@ public class Product {
 
     @OneToOne(cascade = CascadeType.ALL)
     @Column(name = "qr_code", nullable = false)
-    private QR qr;
+    private CodigoBarra codigoBarra;
 }
