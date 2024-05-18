@@ -31,7 +31,6 @@ public class OwnerService {
         existingOwner.setLastName(updatedOwner.getLastName());
         existingOwner.setEmail(updatedOwner.getEmail());
         existingOwner.setPhoneNumber(updatedOwner.getPhoneNumber());
-        existingOwner.setSuppliers(updatedOwner.getSuppliers());
 
         ownerRepository.save(existingOwner);
     }
