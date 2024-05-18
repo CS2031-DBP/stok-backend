@@ -6,8 +6,7 @@ import lombok.Data;
 
 @Entity
 @Data
+@Table(name = "employees")
 public class Employee extends User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
 }
