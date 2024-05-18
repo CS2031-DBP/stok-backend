@@ -26,4 +26,5 @@ public class Product {
     @OneToOne(cascade = CascadeType.ALL)
     @Column(name = "qr_code", nullable = false)
     private CodigoBarra codigoBarra;
+
 }
