@@ -45,7 +45,6 @@ public class SaleService {
 
         int difference = updatedSale.getAmount() - existingSale.getAmount();
         if (difference < 0) {
-            // Si la diferencia es negativa, es decir, se está reduciendo el monto, lanzar una excepción
             throw new RuntimeException("Sale amount cannot be reduced below 0");
         }
 
@@ -53,7 +52,6 @@ public class SaleService {
         existingSale.setProductPrice(updatedSale.getProductPrice());
         existingSale.setAmount(updatedSale.getAmount());
 
-        // Si la diferencia es positiva, es decir, se está aumentando el monto, utilizar la función increaseInventory
         if (difference > 0) {
             inventoryService.increaseInventory(existingSale.getInventory().getId(), difference);
         }

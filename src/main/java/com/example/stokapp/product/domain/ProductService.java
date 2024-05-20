@@ -1,8 +1,13 @@
 package com.example.stokapp.product.domain;
 
+import com.example.stokapp.exceptions.NotFound;
 import com.example.stokapp.product.infrastructure.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.nio.file.ProviderNotFoundException;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -16,7 +21,7 @@ public class ProductService {
     //DELETE PRODUCT
     public void deleteProduct(Long productId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new NotFound("Product not found"));
         productRepository.delete(product);
     }
 
@@ -31,6 +36,23 @@ public class ProductService {
         existingProduct.setCategory(updatedProduct.getCategory());
 
         productRepository.save(existingProduct);
+    }
+
+    //BUSCAR PRODUCTO POR nombre
+    public Product getProductByName(String nombre) {
+        Product products = productRepository.findByName(nombre)
+                .orElseThrow(() -> new NotFound("Product not found"));
+        return products;
+    }
+
+
+    // BUSCAR TODOS LOS PRODUCTOS
+    public List<Product> getAllProducts() {
+        List<Product> products = productRepository.findAll();
+        if(products.isEmpty()){
+            throw new RuntimeException("No products found.");
+        }
+        return products;
     }
 
 }
