@@ -7,12 +7,27 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/product")
 public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @GetMapping("/find")
+    public ResponseEntity<Product> findProductByName(@RequestBody String string){
+        Product product= productService.getProductByName(string);
+        return ResponseEntity.ok(product);
+    }
+
+    @GetMapping("/findall")
+    public ResponseEntity<List<Product>> findAllProducts(){
+        List<Product> productList = productService.getAllProducts();
+        return ResponseEntity.ok(productList);
+    }
 
     // ADD PRODUCT
     @PostMapping("/add")
