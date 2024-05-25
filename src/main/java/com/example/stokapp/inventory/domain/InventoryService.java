@@ -30,6 +30,10 @@ public class InventoryService {
 
         inventory.setStock(inventory.getStock() - quantity);
         inventoryRepository.save(inventory);
+
+        if (inventory.getStock() < 5) {
+            sendLowStockAlert(inventory);
+        }
     }
 
     // AUMENTAR SOTCK
@@ -47,5 +51,9 @@ public class InventoryService {
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
         inventoryRepository.delete(inventory);
+    }
+
+    private void sendLowStockAlert(Inventory inventory) {
+        System.out.println("Advertencia: El producto " + inventory.getProduct().getName() + " se está acabando pronto. Stock actual: " + inventory.getStock());
     }
 }
