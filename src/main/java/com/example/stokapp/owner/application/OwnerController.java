@@ -6,7 +6,6 @@ import com.example.stokapp.owner.domain.OwnerService;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
 import com.example.stokapp.supplier.domain.Supplier;
 import com.example.stokapp.supplier.infrastructure.SupplierRepository;
-import com.example.stokapp.twilio.WhatsAppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +20,6 @@ public class OwnerController {
 
     @Autowired
     private SupplierRepository supplierRepository;
-
-    @Autowired
-    private WhatsAppService whatsAppService;
 
     @Autowired
     private OwnerRepository ownerRepository;
@@ -47,22 +43,5 @@ public class OwnerController {
     public ResponseEntity<String> updateOwner(@PathVariable Long ownerId, @RequestBody Owner updatedOwner) {
         ownerService.updateOwner(ownerId, updatedOwner);
         return ResponseEntity.ok("Owner updated");
-    }
-
-    // ENVIAR MENSAJE DE WHATSAPP A UN PROVEEDOR
-    @PostMapping("/send-message")
-    public ResponseEntity<String> sendMessage(
-            @RequestParam Long ownerId,
-            @RequestParam Long supplierId,
-            @RequestParam String message) {
-
-        Owner owner = ownerRepository.findById(ownerId)
-                .orElseThrow(() -> new NotFound("Owner not found"));
-        Supplier supplier = supplierRepository.findById(supplierId)
-                .orElseThrow(() -> new NotFound("Supplier not found"));
-
-        whatsAppService.sendWhatsAppMessage(owner.getPhoneNumber(), supplier.getPhoneNumber(), message);
-
-        return ResponseEntity.ok("Message sent to supplier");
     }
 }
