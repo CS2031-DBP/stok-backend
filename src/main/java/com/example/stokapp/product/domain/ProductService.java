@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.nio.file.ProviderNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -42,6 +43,7 @@ public class ProductService {
 
         productRepository.save(existingProduct);
     }
+
     //BUSCAR PRODUCTO POR nombre
     public ProductDto getProductByName(String nombre) {
         Product products = productRepository.findByName(nombre)

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFound.class)
-    public ResponseEntity<ErrorMessage> productNotFound(NotFound mensaje) {
+    public ResponseEntity<ErrorMessage> NotFound(NotFound mensaje) {
         ErrorMessage error = new ErrorMessage(mensaje.getMessage(), "404");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
