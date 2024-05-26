@@ -1,7 +1,11 @@
 package com.example.stokapp.inventory.domain;
 
+import com.example.stokapp.exceptions.NotFound;
 import com.example.stokapp.inventory.infrastructure.InventoryRepository;
 import com.example.stokapp.product.domain.Product;
+import com.example.stokapp.product.domain.ProductDto;
+import com.example.stokapp.product.infrastructure.ProductRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +17,12 @@ public class InventoryService {
 
     @Autowired
     private InventoryRepository inventoryRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ModelMapper mapper;
 
 
     // CREAR INVENTARIO
@@ -60,5 +70,17 @@ public class InventoryService {
     private void sendLowStockAlert(Inventory inventory) {
         System.out.println("Advertencia: El producto " + inventory.getProduct().getName() + " se está acabando pronto. Stock actual: " + inventory.getStock());
 
+    }
+
+    public InventoryDto getInventoryByProductName(String nombre) {
+        Inventory inventory = inventoryRepository.findInventoryByProductName(nombre);
+        if (inventory == null) {
+            throw new RuntimeException("Product not found");
+        }
+        InventoryDto inventoryDto = mapper.map(inventory, InventoryDto.class);
+        ProductDto productDto = mapper.map(inventory.getProduct(), ProductDto.class);
+        inventoryDto.setProduct(productDto);
+
+        return inventoryDto;
     }
 }

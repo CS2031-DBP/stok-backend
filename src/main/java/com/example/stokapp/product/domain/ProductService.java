@@ -44,15 +44,6 @@ public class ProductService {
         productRepository.save(existingProduct);
     }
 
-    //BUSCAR PRODUCTO POR nombre
-    public ProductDto getProductByName(String nombre) {
-        Product products = productRepository.findByName(nombre)
-                .orElseThrow(() -> new NotFound("Product not found"));
-        ProductDto productDto = mapper.map(products, ProductDto.class);
-
-        return productDto;
-    }
-
 
     // BUSCAR TODOS LOS PRODUCTOS
     public List<Product> getAllProducts() {

@@ -6,11 +6,12 @@ import java.time.ZonedDateTime;
 @Data
 public class ProductDto {
 
-    private ZonedDateTime createdAt;
+    private String name;
 
-    private String productName;
+    private String description;
 
-    private Double productPrice;
+    private Double price;
 
-    private Integer amount;
+    private Category category;
+
 }

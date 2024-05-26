@@ -1,6 +1,7 @@
 package com.example.stokapp.owner.domain;
 
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +10,8 @@ public class OwnerService {
 
     @Autowired
     private OwnerRepository ownerRepository;
+    @Autowired
+    private ModelMapper mapper;
 
     // SAVE OWNER
     public void saveOwner(Owner owner) {
@@ -33,5 +36,11 @@ public class OwnerService {
         existingOwner.setPhoneNumber(updatedOwner.getPhoneNumber());
 
         ownerRepository.save(existingOwner);
+    }
+
+    public OwnerResponseDto getOwnerById(Long id) {
+        Owner owner =ownerRepository.findById(id).orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        return mapper.map(owner, OwnerResponseDto.class);
     }
 }

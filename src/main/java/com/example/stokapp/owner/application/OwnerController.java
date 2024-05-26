@@ -2,6 +2,7 @@ package com.example.stokapp.owner.application;
 
 import com.example.stokapp.exceptions.NotFound;
 import com.example.stokapp.owner.domain.Owner;
+import com.example.stokapp.owner.domain.OwnerResponseDto;
 import com.example.stokapp.owner.domain.OwnerService;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
 import com.example.stokapp.supplier.domain.Supplier;
@@ -29,6 +30,12 @@ public class OwnerController {
     public ResponseEntity<String> saveOwner(@RequestBody Owner owner) {
         ownerService.saveOwner(owner);
         return ResponseEntity.status(HttpStatus.CREATED).body("Owner saved");
+    }
+
+    // GET PROPIETARIO
+    @GetMapping("/{id}")
+    public ResponseEntity<OwnerResponseDto> findOwner(@PathVariable Long id) {
+        return ResponseEntity.ok(ownerService.getOwnerById(id));
     }
 
     // ELIMINAR PROPIETARIO
