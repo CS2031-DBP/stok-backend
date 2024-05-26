@@ -55,6 +55,7 @@ public class InventoryService {
 
     public List<Inventory> findAll() {
         return inventoryRepository.findAll();
+    }
 
     private void sendLowStockAlert(Inventory inventory) {
         System.out.println("Advertencia: El producto " + inventory.getProduct().getName() + " se está acabando pronto. Stock actual: " + inventory.getStock());
