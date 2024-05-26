@@ -5,6 +5,7 @@ import com.example.stokapp.product.domain.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -15,8 +16,7 @@ public class InventoryService {
 
 
     // CREAR INVENTARIO
-    public void createInventory(Inventory inventory, Product product) {
-        inventory.setProduct(product);
+    public void createInventory(Inventory inventory) {
         inventoryRepository.save(inventory);}
 
     // REDUCIR STOCK
@@ -53,7 +53,11 @@ public class InventoryService {
         inventoryRepository.delete(inventory);
     }
 
+    public List<Inventory> findAll() {
+        return inventoryRepository.findAll();
+
     private void sendLowStockAlert(Inventory inventory) {
         System.out.println("Advertencia: El producto " + inventory.getProduct().getName() + " se está acabando pronto. Stock actual: " + inventory.getStock());
+
     }
 }

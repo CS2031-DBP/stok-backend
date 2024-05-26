@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/inventory")
 public class InventoryController {
@@ -15,10 +17,16 @@ public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
 
+    // GET INVENTARIO
+    @GetMapping
+    public ResponseEntity<List<Inventory>> getAll() {
+        return ResponseEntity.ok(inventoryService.findAll());
+    }
+
     // CREAR INVENTARIO
     @PostMapping("/create")
-    public ResponseEntity<String> createInventory(@RequestBody Inventory inventory, @RequestBody Product product) {
-        inventoryService.createInventory(inventory, product);
+    public ResponseEntity<String> createInventory(@RequestBody Inventory inventory) {
+        inventoryService.createInventory(inventory);
         return ResponseEntity.status(HttpStatus.CREATED).body("Inventory created successfully");
     }
 
