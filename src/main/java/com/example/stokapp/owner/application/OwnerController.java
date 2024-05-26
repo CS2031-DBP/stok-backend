@@ -1,7 +1,11 @@
 package com.example.stokapp.owner.application;
 
+import com.example.stokapp.exceptions.NotFound;
 import com.example.stokapp.owner.domain.Owner;
 import com.example.stokapp.owner.domain.OwnerService;
+import com.example.stokapp.owner.infrastructure.OwnerRepository;
+import com.example.stokapp.supplier.domain.Supplier;
+import com.example.stokapp.supplier.infrastructure.SupplierRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +17,12 @@ public class OwnerController {
 
     @Autowired
     private OwnerService ownerService;
+
+    @Autowired
+    private SupplierRepository supplierRepository;
+
+    @Autowired
+    private OwnerRepository ownerRepository;
 
     // GUARDAR PROPIETARIO
     @PostMapping("/create")

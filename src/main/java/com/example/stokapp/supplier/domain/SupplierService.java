@@ -4,6 +4,8 @@ import com.example.stokapp.supplier.infrastructure.SupplierRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class SupplierService {
 
@@ -33,6 +35,11 @@ public class SupplierService {
         existingSupplier.setPhoneNumber(updatedSupplier.getPhoneNumber());
 
         supplierRepository.save(existingSupplier);
+    }
+
+    // FIND ALL SUPPLIERS
+    public List<Supplier> findAllSuppliers() {
+        return supplierRepository.findAll();
     }
 
 

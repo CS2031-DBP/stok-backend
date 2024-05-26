@@ -1,6 +1,7 @@
 package com.example.stokapp.product.application;
 
 import com.example.stokapp.product.domain.Product;
+import com.example.stokapp.product.domain.ProductDto;
 import com.example.stokapp.product.domain.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,8 +19,8 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/find")
-    public ResponseEntity<Product> findProductByName(@RequestBody String string){
-        Product product= productService.getProductByName(string);
+    public ResponseEntity<ProductDto> findProductByName(@RequestBody String string){
+        ProductDto product= productService.getProductByName(string);
         return ResponseEntity.ok(product);
     }
 

@@ -1,19 +1,25 @@
 package com.example.stokapp.product.domain;
 
+import com.example.stokapp.configuration.DtoConfig;
 import com.example.stokapp.exceptions.NotFound;
 import com.example.stokapp.product.infrastructure.ProductRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.ProviderNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    ModelMapper mapper;
 
     //ADD PRODUCT
     public void addProduct(Product product) { productRepository.save(product); }
@@ -37,11 +43,14 @@ public class ProductService {
 
         productRepository.save(existingProduct);
     }
+
     //BUSCAR PRODUCTO POR nombre
-    public Product getProductByName(String nombre) {
+    public ProductDto getProductByName(String nombre) {
         Product products = productRepository.findByName(nombre)
                 .orElseThrow(() -> new NotFound("Product not found"));
-        return products;
+        ProductDto productDto = mapper.map(products, ProductDto.class);
+
+        return productDto;
     }
 
 

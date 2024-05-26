@@ -18,6 +18,6 @@ public class Owner extends User {
     private List<Supplier> suppliers;
 
     @OneToMany
-    @Column(name = "suppliers")
+    @Column(name = "sales")
     private List<Sale> sales;
 }
