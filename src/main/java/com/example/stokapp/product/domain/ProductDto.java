@@ -13,7 +13,4 @@ public class ProductDto {
     private Double productPrice;
 
     private Integer amount;
-
-    private Inventory inventory;
-
 }

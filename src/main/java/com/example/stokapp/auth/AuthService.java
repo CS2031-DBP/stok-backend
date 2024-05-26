@@ -49,6 +49,8 @@ public class AuthService {
         AuthJwtResponse response = new AuthJwtResponse();
 
         response.setToken(jwtService.generateToken(user.get()));
+        response.setId(user.get().getId());
+        response.setRole(user.get().getRole());
         return response;
     }
 
@@ -71,6 +73,7 @@ public class AuthService {
             AuthJwtResponse response = new AuthJwtResponse();
             response.setToken(jwtService.generateToken(owner));
             response.setId(owner.getId());
+            response.setRole(owner.getRole());
             applicationEventPublisher.publishEvent(new WelcomeEmailEvent(this, owner.getEmail(), owner.getFirstName()));
             return response;
         }
@@ -89,6 +92,7 @@ public class AuthService {
             AuthJwtResponse response = new AuthJwtResponse();
             response.setToken(jwtService.generateToken(employee));
             response.setId(employee.getId());
+            response.setRole(employee.getRole());
             applicationEventPublisher.publishEvent(new WelcomeEmailEvent(this, employee.getEmail(), employee.getFirstName()));
             return response;
         }
