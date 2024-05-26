@@ -6,6 +6,7 @@ import com.example.stokapp.configuration.JwtService;
 import com.example.stokapp.employee.domain.Employee;
 import com.example.stokapp.event.WelcomeEmailEvent;
 import com.example.stokapp.owner.domain.Owner;
+import com.example.stokapp.user.domain.Role;
 import com.example.stokapp.user.domain.User;
 import com.example.stokapp.user.infrastructure.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -57,6 +58,8 @@ public class AuthService {
 
         if (req.getIsOwner()) {
             Owner owner = new Owner();
+            owner.setCreatedAt(ZonedDateTime.now());
+            owner.setRole(Role.OWNER);
             owner.setFirstName(req.getFirstName());
             owner.setLastName(req.getLastName());
             owner.setEmail(req.getEmail());
@@ -67,11 +70,14 @@ public class AuthService {
 
             AuthJwtResponse response = new AuthJwtResponse();
             response.setToken(jwtService.generateToken(owner));
+            response.setId(owner.getId());
             applicationEventPublisher.publishEvent(new WelcomeEmailEvent(this, owner.getEmail(), owner.getFirstName()));
             return response;
         }
         else {
             Employee employee = new Employee();
+            employee.setCreatedAt(ZonedDateTime.now());
+            employee.setRole(Role.EMPLOYEE);
             employee.setFirstName(req.getFirstName());
             employee.setLastName(req.getLastName());
             employee.setEmail(req.getEmail());
@@ -82,6 +88,7 @@ public class AuthService {
 
             AuthJwtResponse response = new AuthJwtResponse();
             response.setToken(jwtService.generateToken(employee));
+            response.setId(employee.getId());
             applicationEventPublisher.publishEvent(new WelcomeEmailEvent(this, employee.getEmail(), employee.getFirstName()));
             return response;
         }
