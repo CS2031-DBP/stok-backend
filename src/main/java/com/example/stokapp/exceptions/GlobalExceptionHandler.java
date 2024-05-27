@@ -13,10 +13,4 @@ public class GlobalExceptionHandler {
         ErrorMessage error = new ErrorMessage(mensaje.getMessage(), "404");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
-
-    @ExceptionHandler(UnauthorizeOperationException.class)
-    public ResponseEntity<ErrorMessage> UnauthorizeOperationException(UnauthorizeOperationException mensaje) {
-        ErrorMessage error = new ErrorMessage(mensaje.getMessage(), "403");
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
-    }
 }
