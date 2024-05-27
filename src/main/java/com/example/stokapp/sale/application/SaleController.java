@@ -1,7 +1,6 @@
 package com.example.stokapp.sale.application;
 
 import com.example.stokapp.sale.domain.Sale;
-import com.example.stokapp.sale.domain.SaleDto;
 import com.example.stokapp.sale.domain.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,30 +21,30 @@ public class SaleController {
     }
 
     // Endpoint para crear una venta
-    @PostMapping("/create/{ownerId}")
-    public ResponseEntity<String> createSale(@PathVariable Long ownerId, @RequestBody Sale sale) {
-        saleService.createSale(ownerId, sale);
+    @PostMapping("/create")
+    public ResponseEntity<String> createSale(@RequestBody Sale sale) {
+        saleService.createSale(sale);
         return ResponseEntity.status(HttpStatus.CREATED).body("Sale created successfully");
     }
 
     // Endpoint para obtener todas las ventas
     @GetMapping("/all")
-    public ResponseEntity<List<SaleDto>> getAllSales() {
-        List<SaleDto> sales = saleService.getAllSales();
+    public ResponseEntity<List<Sale>> getAllSales() {
+        List<Sale> sales = saleService.getAllSales();
         return ResponseEntity.ok(sales);
     }
 
     // Endpoint para actualizar una venta
-    @PatchMapping("/update/{saleId}")
+    @PutMapping("/update/{saleId}")
     public ResponseEntity<String> updateSale(@PathVariable Long saleId, @RequestBody Sale updatedSale) {
         saleService.updateSale(saleId, updatedSale);
         return ResponseEntity.ok("Sale updated successfully");
     }
 
     // Endpoint para eliminar una venta
-    @DeleteMapping("/delete/{ownerId}/{saleId}")
-    public ResponseEntity<String> deleteSale(@PathVariable Long ownerId, @PathVariable Long saleId) {
-        saleService.deleteSale(ownerId, saleId);
+    @DeleteMapping("/delete/{saleId}")
+    public ResponseEntity<String> deleteSale(@PathVariable Long saleId) {
+        saleService.deleteSale(saleId);
         return ResponseEntity.ok("Sale deleted successfully");
     }
 }

@@ -6,7 +6,6 @@ import com.example.stokapp.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,9 +15,9 @@ public class Owner extends User {
 
     @OneToMany
     @Column(name = "suppliers")
-    private List<Supplier> suppliers = new ArrayList<>();
+    private List<Supplier> suppliers;
 
     @OneToMany
     @Column(name = "sales")
-    private List<Sale> sales = new ArrayList<>();
+    private List<Sale> sales;
 }

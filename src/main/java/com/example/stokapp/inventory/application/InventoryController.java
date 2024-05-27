@@ -1,8 +1,8 @@
 package com.example.stokapp.inventory.application;
 
 import com.example.stokapp.inventory.domain.Inventory;
-import com.example.stokapp.inventory.domain.InventoryDto;
 import com.example.stokapp.inventory.domain.InventoryService;
+import com.example.stokapp.product.domain.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,13 +28,6 @@ public class InventoryController {
     public ResponseEntity<String> createInventory(@RequestBody Inventory inventory) {
         inventoryService.createInventory(inventory);
         return ResponseEntity.status(HttpStatus.CREATED).body("Inventory created successfully");
-    }
-
-    // GET INVENTORY BY PRODUCT NAME
-    @GetMapping("/find")
-    public ResponseEntity<InventoryDto> findProductByName(@RequestBody String string){
-        InventoryDto inventory = inventoryService.getInventoryByProductName(string);
-        return ResponseEntity.ok(inventory);
     }
 
     // REDUCIR STOCK

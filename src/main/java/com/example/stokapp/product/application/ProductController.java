@@ -19,6 +19,12 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @GetMapping("/find")
+    public ResponseEntity<ProductDto> findProductByName(@RequestBody String string){
+        ProductDto product= productService.getProductByName(string);
+        return ResponseEntity.ok(product);
+    }
+
     // FIND ALL PRODUCTS
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')")
     @GetMapping("/findall")

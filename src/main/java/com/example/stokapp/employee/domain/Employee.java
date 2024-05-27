@@ -8,4 +8,5 @@ import lombok.Data;
 @Data
 @Table(name = "employees")
 public class Employee extends User {
+
 }

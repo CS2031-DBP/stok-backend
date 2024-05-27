@@ -1,10 +1,5 @@
 package com.example.stokapp.supplier.domain;
 
-import com.example.stokapp.auth.AuthImpl;
-import com.example.stokapp.exceptions.UnauthorizeOperationException;
-import com.example.stokapp.owner.domain.Owner;
-import com.example.stokapp.owner.domain.OwnerService;
-import com.example.stokapp.owner.infrastructure.OwnerRepository;
 import com.example.stokapp.supplier.infrastructure.SupplierRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,39 +11,21 @@ public class SupplierService {
 
     @Autowired
     private SupplierRepository supplierRepository;
-    @Autowired
-    private OwnerRepository ownerRepository;
-    @Autowired
-    private OwnerService ownerService;
-    @Autowired
-    private AuthImpl authImpl;
 
     // ADD SUPPLIER
-    public void addSupplier(Long ownerId, Supplier supplier) {
-        if (!authImpl.isOwnerResource(ownerId))
-            throw new UnauthorizeOperationException("Not allowed");
-
-        ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
-        ownerService.AddSupplier(ownerId, supplier);
+    public void addSupplier(Supplier supplier) {
         supplierRepository.save(supplier);
     }
 
     // DELETE SUPPLIER
-    public void deleteSupplier(Long ownerId, Long supplierId) {
-        if (!authImpl.isOwnerResource(ownerId))
-            throw new UnauthorizeOperationException("Not allowed");
-
+    public void deleteSupplier(Long supplierId) {
         Supplier supplier = supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new RuntimeException("Supplier not found"));
-        ownerService.DeleteSupplier(ownerId, supplier);
         supplierRepository.delete(supplier);
     }
 
     // UPDATE SUPPLIER
-    public void updateSupplier(Long ownerId, Long supplierId, Supplier updatedSupplier) {
-        if (!authImpl.isOwnerResource(ownerId))
-            throw new UnauthorizeOperationException("Not allowed");
-
+    public void updateSupplier(Long supplierId, Supplier updatedSupplier) {
         Supplier existingSupplier = supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new RuntimeException("Supplier not found"));
 
@@ -61,9 +38,9 @@ public class SupplierService {
     }
 
     // FIND ALL SUPPLIERS
-    public List<Supplier> findAllSuppliers(Long ownerId) {
-        if (!authImpl.isOwnerResource(ownerId))
-            throw new UnauthorizeOperationException("Not allowed");
-        return supplierRepository.findSuppliersByOwnerId(ownerId);
+    public List<Supplier> findAllSuppliers() {
+        return supplierRepository.findAll();
     }
+
+
 }
