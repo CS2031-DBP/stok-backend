@@ -1,6 +1,10 @@
 package com.example.stokapp.owner.domain;
 
+import com.example.stokapp.auth.AuthImpl;
+import com.example.stokapp.exceptions.UnauthorizeOperationException;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
+import com.example.stokapp.sale.domain.Sale;
+import com.example.stokapp.supplier.domain.Supplier;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,35 +16,79 @@ public class OwnerService {
     private OwnerRepository ownerRepository;
     @Autowired
     private ModelMapper mapper;
-
-    // SAVE OWNER
-    public void saveOwner(Owner owner) {
-        ownerRepository.save(owner);
-    }
+    @Autowired
+    AuthImpl authImpl;
 
     // ELIMINAR OWNER
     public void deleteOwner(Long ownerId) {
+        if (!authImpl.isOwnerResource(ownerId))
+            throw new UnauthorizeOperationException("Not allowed");
+
         Owner owner = ownerRepository.findById(ownerId)
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
         ownerRepository.delete(owner);
     }
 
     // UPDATE OWNER
-    public void updateOwner(Long ownerId, Owner updatedOwner) {
+    public void updateOwner(Long ownerId, OwnerInfo ownerInfo) {
+        if (!authImpl.isOwnerResource(ownerId))
+            throw new UnauthorizeOperationException("Not allowed");
+
         Owner existingOwner = ownerRepository.findById(ownerId)
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
 
-        existingOwner.setFirstName(updatedOwner.getFirstName());
-        existingOwner.setLastName(updatedOwner.getLastName());
-        existingOwner.setEmail(updatedOwner.getEmail());
-        existingOwner.setPhoneNumber(updatedOwner.getPhoneNumber());
+        existingOwner.setFirstName(ownerInfo.getFirstName());
+        existingOwner.setLastName(ownerInfo.getLastName());
+        existingOwner.setEmail(ownerInfo.getEmail());
+        existingOwner.setPhoneNumber(ownerInfo.getPhoneNumber());
+        existingOwner.setRole(ownerInfo.getRole());
 
         ownerRepository.save(existingOwner);
     }
 
     public OwnerResponseDto getOwnerById(Long id) {
+        if (!authImpl.isOwnerResource(id))
+            throw new UnauthorizeOperationException("Not allowed");
+
         Owner owner =ownerRepository.findById(id).orElseThrow(() -> new RuntimeException("Owner not found"));
 
         return mapper.map(owner, OwnerResponseDto.class);
+    }
+
+    public void AddSupplier(Long ownerId, Supplier supplier){
+        if (!authImpl.isOwnerResource(ownerId))
+            throw new UnauthorizeOperationException("Not allowed");
+
+        Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
+        owner.getSuppliers().add(supplier);
+        ownerRepository.save(owner);
+    }
+
+    public void DeleteSupplier(Long ownerId, Supplier supplier){
+        if (!authImpl.isOwnerResource(ownerId))
+            throw new UnauthorizeOperationException("Not allowed");
+
+
+        Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
+        owner.getSuppliers().remove(supplier);
+        ownerRepository.save(owner);
+    }
+
+    public void AddSale(Long ownerId, Sale sale){
+        if (!authImpl.isOwnerResource(ownerId))
+            throw new UnauthorizeOperationException("Not allowed");
+
+        Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
+        owner.getSales().add(sale);
+        ownerRepository.save(owner);
+    }
+
+    public void DeleteSale(Long ownerId, Sale sale){
+        if (!authImpl.isOwnerResource(ownerId))
+            throw new UnauthorizeOperationException("Not allowed");
+
+        Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
+        owner.getSales().remove(sale);
+        ownerRepository.save(owner);
     }
 }

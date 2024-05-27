@@ -1,4 +1,5 @@
 package com.example.stokapp.product.domain;
+
 import com.example.stokapp.inventory.domain.Inventory;
 import lombok.Data;
 import java.time.ZonedDateTime;
