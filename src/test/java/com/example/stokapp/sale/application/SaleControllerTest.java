@@ -1,2 +1,4 @@
-package com.example.stokapp.sale.application;public class SaleControllerTest {
+package com.example.stokapp.sale.application;
+
+public class SaleControllerTest {
 }

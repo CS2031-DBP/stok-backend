@@ -1,2 +1,4 @@
-package com.example.stokapp.inventory.infrastructure;public class InventoryRepositoryTest {
+package com.example.stokapp.inventory.infrastructure;
+
+public class InventoryRepositoryTest {
 }

@@ -1,2 +1,4 @@
-package com.example.stokapp.employee.infrastructure;public class EmployeeRepositoryTest {
+package com.example.stokapp.employee.infrastructure;
+
+public class EmployeeRepositoryTest {
 }
