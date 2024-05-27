@@ -20,6 +20,9 @@ public class Sale {
     @Column(name = "amount", nullable = false)
     private Integer amount;
 
+    @Column(name = "saleCant")
+    private Double saleCant;
+
     @ManyToOne
     @JoinColumn(name = "inventory_id", nullable = false)
     private Inventory inventory;

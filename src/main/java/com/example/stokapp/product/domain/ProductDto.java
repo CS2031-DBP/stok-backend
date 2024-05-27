@@ -1,4 +1,5 @@
 package com.example.stokapp.product.domain;
+
 import com.example.stokapp.inventory.domain.Inventory;
 import lombok.Data;
 import java.time.ZonedDateTime;
@@ -6,11 +7,12 @@ import java.time.ZonedDateTime;
 @Data
 public class ProductDto {
 
-    private ZonedDateTime createdAt;
+    private String name;
 
-    private String productName;
+    private String description;
 
-    private Double productPrice;
+    private Double price;
 
-    private Integer amount;
+    private Category category;
+
 }

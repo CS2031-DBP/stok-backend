@@ -36,4 +36,3 @@ public class EmployeeTest {
         employee = null;
         assertNull(employee);
     }
-}

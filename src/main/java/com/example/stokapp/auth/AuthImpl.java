@@ -1,6 +1,5 @@
 package com.example.stokapp.auth;
 
-
 import com.example.stokapp.user.domain.User;
 import com.example.stokapp.user.domain.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

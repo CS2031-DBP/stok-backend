@@ -67,4 +67,3 @@ public class InventoryTest {
         assertNull(inventory);
     }
 
-}
