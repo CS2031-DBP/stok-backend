@@ -23,4 +23,7 @@ public class Supplier {
 
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
+
+    @ManyToOne
+    private Owner owner;
 }

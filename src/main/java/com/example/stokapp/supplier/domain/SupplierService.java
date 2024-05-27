@@ -61,12 +61,9 @@ public class SupplierService {
     }
 
     // FIND ALL SUPPLIERS
-    /*
     public List<Supplier> findAllSuppliers(Long ownerId) {
         if (!authImpl.isOwnerResource(ownerId))
             throw new UnauthorizeOperationException("Not allowed");
         return supplierRepository.findSuppliersByOwnerId(ownerId);
     }
-
-     */
 }
