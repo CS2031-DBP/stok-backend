@@ -22,9 +22,9 @@ public class SaleController {
     }
 
     // Endpoint para crear una venta
-    @PostMapping("/create/{ownerId}")
-    public ResponseEntity<String> createSale(@PathVariable Long ownerId, @RequestBody Sale sale) {
-        saleService.createSale(ownerId, sale);
+    @PostMapping("/create/{ownerId}/{employeeId}")
+    public ResponseEntity<String> createSale(@PathVariable Long ownerId, @PathVariable Long employeeId, @RequestBody Sale sale) {
+        saleService.createSale(ownerId, employeeId, sale);
         return ResponseEntity.status(HttpStatus.CREATED).body("Sale created successfully");
     }
 

@@ -1,7 +1,12 @@
 package com.example.stokapp.inventory.domain;
 
 import com.example.stokapp.auth.AuthImpl;
+import com.example.stokapp.employee.domain.Employee;
+import com.example.stokapp.employee.domain.EmployeeService;
+import com.example.stokapp.employee.infrastructure.EmployeeRepository;
 import com.example.stokapp.event.SendEmailToSupplierEvent;
+import com.example.stokapp.event.SendLowStockEmailEvent;
+import com.example.stokapp.event.WelcomeEmailEvent;
 import com.example.stokapp.exceptions.NotFound;
 import com.example.stokapp.exceptions.UnauthorizeOperationException;
 import com.example.stokapp.inventory.infrastructure.InventoryRepository;
@@ -15,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class InventoryService {
@@ -33,6 +39,8 @@ public class InventoryService {
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
+    @Autowired
+    private EmployeeService employeeService;
 
 
     // CREAR INVENTARIO
@@ -61,7 +69,7 @@ public class InventoryService {
         inventoryRepository.save(inventory);
 
         if (inventory.getStock() < 5) {
-            sendLowStockAlert(inventory);
+            applicationEventPublisher.publishEvent(new SendLowStockEmailEvent(this, inventory.getOwner().getEmail(), inventory));
         }
     }
 
@@ -79,6 +87,7 @@ public class InventoryService {
         inventoryRepository.save(inventory);
     }
 
+
     // ELIMINAR INVENTARIO
     public void deleteInventory(Long inventoryId) {
         String username = authImpl.getCurrentEmail();
@@ -92,18 +101,24 @@ public class InventoryService {
         inventoryRepository.delete(inventory);
     }
 
-    public List<Inventory> findAll() {
+
+    // FIND ALL INVENTORY WITH DTO
+    public List<InventoryDto> findAll() {
         String username = authImpl.getCurrentEmail();
-        if(username == null) {
+        if (username == null) {
             throw new UnauthorizeOperationException("Not allowed");
         }
-        return inventoryRepository.findAll();
+        List<Inventory> inventories = inventoryRepository.findAll();
+        return inventories.stream()
+                .map(inventory -> {
+                    InventoryDto inventoryDto = mapper.map(inventory, InventoryDto.class);
+                    ProductDto productDto = mapper.map(inventory.getProduct(), ProductDto.class);
+                    inventoryDto.setProduct(productDto);
+                    return inventoryDto;
+                })
+                .collect(Collectors.toList());
     }
 
-    private void sendLowStockAlert(Inventory inventory) {
-        System.out.println("Advertencia: El producto " + inventory.getProduct().getName() + " se está acabando pronto. Stock actual: " + inventory.getStock());
-
-    }
 
     public InventoryDto getInventoryByProductName(String nombre) {
         String username = authImpl.getCurrentEmail();

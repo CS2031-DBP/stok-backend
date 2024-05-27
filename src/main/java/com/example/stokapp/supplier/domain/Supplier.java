@@ -1,8 +1,11 @@
 package com.example.stokapp.supplier.domain;
 
 import com.example.stokapp.owner.domain.Owner;
+import com.example.stokapp.product.domain.Product;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.List;
 
 @Entity
 @Data
@@ -23,4 +26,10 @@ public class Supplier {
 
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
+
+    @ManyToOne
+    private Owner owner;
+
+    @OneToMany
+    private List<Product> products;
 }

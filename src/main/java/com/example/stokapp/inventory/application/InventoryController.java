@@ -19,7 +19,7 @@ public class InventoryController {
 
     // GET INVENTARIO
     @GetMapping
-    public ResponseEntity<List<Inventory>> getAll() {
+    public ResponseEntity<List<InventoryDto>> getAll() {
         return ResponseEntity.ok(inventoryService.findAll());
     }
 

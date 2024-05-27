@@ -1,23 +1,24 @@
 package com.example.stokapp.event;
 
 import com.example.stokapp.inventory.domain.Inventory;
+import com.example.stokapp.product.domain.Product;
 import org.springframework.context.ApplicationEvent;
 
 public class SendEmailToSupplierEvent extends ApplicationEvent {
     private String email;
-    private Inventory inventory;
+    private Product product;
 
-    public SendEmailToSupplierEvent(Object source, String email, Inventory inventory) {
+    public SendEmailToSupplierEvent(Object source, String email, Product product) {
         super(source);
         this.email = email;
-        this.inventory = inventory;
+        this.product = product;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public Inventory getInventory() {
-        return inventory;
+    public Product getProduct() {
+        return product;
     }
 }

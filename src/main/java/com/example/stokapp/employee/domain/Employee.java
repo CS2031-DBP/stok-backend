@@ -1,11 +1,24 @@
 package com.example.stokapp.employee.domain;
 
+import com.example.stokapp.inventory.domain.Inventory;
+import com.example.stokapp.sale.domain.Sale;
 import com.example.stokapp.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
 @Table(name = "employees")
 public class Employee extends User {
+
+    @OneToMany
+    @Column(name = "Inventories")
+    private List<Inventory> inventory = new ArrayList<>();
+
+    @OneToMany
+    @Column(name = "sales")
+    private List<Sale> sales = new ArrayList<>();
 }

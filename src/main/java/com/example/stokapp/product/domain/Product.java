@@ -1,6 +1,7 @@
 package com.example.stokapp.product.domain;
 
 import com.example.stokapp.qr.domain.QR;
+import com.example.stokapp.supplier.domain.Supplier;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -28,4 +29,8 @@ public class Product {
     //@Column(name = "qr_code", nullable = false) //con este no corre
     //@PrimaryKeyJoinColumn //-- con este sí corre
     private String qr;
+
+    @ManyToOne
+    private Supplier supplier;
+
 }

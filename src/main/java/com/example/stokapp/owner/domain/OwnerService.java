@@ -1,12 +1,18 @@
 package com.example.stokapp.owner.domain;
 
 import com.example.stokapp.auth.AuthImpl;
+import com.example.stokapp.event.SendEmailToSupplierEvent;
+import com.example.stokapp.event.WelcomeEmailEvent;
 import com.example.stokapp.exceptions.UnauthorizeOperationException;
+import com.example.stokapp.inventory.domain.Inventory;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
+import com.example.stokapp.product.domain.Product;
+import com.example.stokapp.product.infrastructure.ProductRepository;
 import com.example.stokapp.sale.domain.Sale;
 import com.example.stokapp.supplier.domain.Supplier;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +24,10 @@ public class OwnerService {
     private ModelMapper mapper;
     @Autowired
     AuthImpl authImpl;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     // ELIMINAR OWNER
     public void deleteOwner(Long ownerId) {

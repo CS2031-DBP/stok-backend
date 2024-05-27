@@ -16,11 +16,6 @@ public class OwnerController {
     @Autowired
     private OwnerService ownerService;
 
-    @Autowired
-    private SupplierRepository supplierRepository;
-
-    @Autowired
-    private OwnerRepository ownerRepository;
 
     // GET PROPIETARIO
     @GetMapping("/{id}")
@@ -41,4 +36,12 @@ public class OwnerController {
         ownerService.updateOwner(ownerId, ownerInfo);
         return ResponseEntity.ok("Owner updated");
     }
+
+    // SEND EMAIL
+    @PostMapping("/send-email/{productId}")
+    public ResponseEntity<String> sendEmail(@PathVariable Long productId) {
+        ownerService.sendEmail(productId);
+        return ResponseEntity.ok("Email sent");
+    }
+
 }

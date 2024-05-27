@@ -30,14 +30,11 @@ public class SupplierController {
     }
 
     // Endpoint para obtener todos los proveedores
-    /*
     @GetMapping("/all/{ownerId}")
     public ResponseEntity<List<Supplier>> getAllSuppliers(@PathVariable Long ownerId) {
         List<Supplier> suppliers = supplierService.findAllSuppliers(ownerId);
         return ResponseEntity.ok(suppliers);
     }
-    
-     */
 
     // Endpoint para actualizar un proveedor
     @PutMapping("/update/{ownerId}/{supplierId}")
