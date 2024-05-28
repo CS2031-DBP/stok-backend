@@ -24,10 +24,10 @@ public class Inventory {
     private int stock;
 
     @ManyToOne
-    @Column(name = "Owner")
+    @JoinColumn(name = "Owner")
     private Owner owner;
 
     @ManyToOne
-    @Column(name = "Employee")
+    @JoinColumn(name = "Employee")
     private Employee employee;
 }
