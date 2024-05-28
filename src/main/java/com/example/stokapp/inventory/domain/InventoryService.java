@@ -10,6 +10,9 @@ import com.example.stokapp.event.WelcomeEmailEvent;
 import com.example.stokapp.exceptions.NotFound;
 import com.example.stokapp.exceptions.UnauthorizeOperationException;
 import com.example.stokapp.inventory.infrastructure.InventoryRepository;
+import com.example.stokapp.owner.domain.Owner;
+import com.example.stokapp.owner.domain.OwnerService;
+import com.example.stokapp.owner.infrastructure.OwnerRepository;
 import com.example.stokapp.product.domain.Product;
 import com.example.stokapp.product.domain.ProductDto;
 import com.example.stokapp.product.infrastructure.ProductRepository;
@@ -32,6 +35,15 @@ public class InventoryService {
     private ProductRepository productRepository;
 
     @Autowired
+    private OwnerRepository ownerRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private OwnerService ownerService;
+
+    @Autowired
     private ModelMapper mapper;
 
     @Autowired
@@ -44,12 +56,21 @@ public class InventoryService {
 
 
     // CREAR INVENTARIO
-    public void createInventory(Inventory inventory) {
-        String username = authImpl.getCurrentEmail();
-        if(username == null) {
+    public void createInventory(Long ownerId, Long employeeId, Inventory inventory) {
+        if (!authImpl.isOwnerResource(ownerId) && !authImpl.isOwnerResource(employeeId)) {
             throw new UnauthorizeOperationException("Not allowed");
         }
-        inventoryRepository.save(inventory);}
+
+        Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"));
+        owner.getInventory().add(inventory);
+        employee.getInventory().add(inventory);
+
+
+        ownerRepository.save(owner);
+        employeeRepository.save(employee);
+        inventoryRepository.save(inventory);
+    }
 
     // REDUCIR STOCK
     public void reduceInventory(Long inventoryId, Integer quantity) {
@@ -89,15 +110,22 @@ public class InventoryService {
 
 
     // ELIMINAR INVENTARIO
-    public void deleteInventory(Long inventoryId) {
-        String username = authImpl.getCurrentEmail();
-        if(username == null) {
+    public void deleteInventory(Long ownerId, Long employeeId, Long inventoryId) {
+        if (!authImpl.isOwnerResource(ownerId) && !authImpl.isOwnerResource(employeeId)) {
             throw new UnauthorizeOperationException("Not allowed");
         }
 
         Inventory inventory = inventoryRepository.findById(inventoryId)
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
+        Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"));
+        owner.getInventory().remove(inventory);
+        employee.getInventory().remove(inventory);
+
+
+        ownerRepository.save(owner);
+        employeeRepository.save(employee);
         inventoryRepository.delete(inventory);
     }
 

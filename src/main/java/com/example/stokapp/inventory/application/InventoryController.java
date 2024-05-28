@@ -24,9 +24,9 @@ public class InventoryController {
     }
 
     // CREAR INVENTARIO
-    @PostMapping("/create")
-    public ResponseEntity<String> createInventory(@RequestBody Inventory inventory) {
-        inventoryService.createInventory(inventory);
+    @PostMapping("/create/{ownerId}/{employeeId}")
+    public ResponseEntity<String> createInventory(@PathVariable Long OwnerId, @PathVariable Long employeeId, @RequestBody Inventory inventory) {
+        inventoryService.createInventory(OwnerId, employeeId, inventory);
         return ResponseEntity.status(HttpStatus.CREATED).body("Inventory created successfully");
     }
 
@@ -52,9 +52,9 @@ public class InventoryController {
     }
 
     // ELIMINAR INVENTARIO
-    @DeleteMapping("/{inventoryId}")
-    public ResponseEntity<String> deleteInventory(@PathVariable Long inventoryId) {
-        inventoryService.deleteInventory(inventoryId);
+    @DeleteMapping("/delete/{inventoryId}/{ownerId}/{employeeId}")
+    public ResponseEntity<String> deleteInventory(@PathVariable Long ownerId, @PathVariable Long employeeId, @PathVariable Long inventoryId) {
+        inventoryService.deleteInventory(ownerId, employeeId , inventoryId);
         return ResponseEntity.ok("Inventory deleted successfully");
     }
 }

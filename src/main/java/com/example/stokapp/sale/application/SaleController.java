@@ -43,9 +43,9 @@ public class SaleController {
     }
 
     // Endpoint para eliminar una venta
-    @DeleteMapping("/delete/{ownerId}/{saleId}")
-    public ResponseEntity<String> deleteSale(@PathVariable Long ownerId, @PathVariable Long saleId) {
-        saleService.deleteSale(ownerId, saleId);
+    @DeleteMapping("/delete/{ownerId}/{employeeId}/{saleId}")
+    public ResponseEntity<String> deleteSale(@PathVariable Long employeeId, @PathVariable Long ownerId, @PathVariable Long saleId) {
+        saleService.deleteSale(employeeId, ownerId, saleId);
         return ResponseEntity.ok("Sale deleted successfully");
     }
 }

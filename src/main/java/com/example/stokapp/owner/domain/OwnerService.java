@@ -84,21 +84,12 @@ public class OwnerService {
         ownerRepository.save(owner);
     }
 
-    public void AddSale(Long ownerId, Sale sale){
-        if (!authImpl.isOwnerResource(ownerId))
-            throw new UnauthorizeOperationException("Not allowed");
 
-        Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
-        owner.getSales().add(sale);
-        ownerRepository.save(owner);
+
+    public void sendEmail(Long productId){
+        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+        applicationEventPublisher.publishEvent(new SendEmailToSupplierEvent(this, product.getSupplier().getEmail(), product));
     }
 
-    public void DeleteSale(Long ownerId, Sale sale){
-        if (!authImpl.isOwnerResource(ownerId))
-            throw new UnauthorizeOperationException("Not allowed");
 
-        Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
-        owner.getSales().remove(sale);
-        ownerRepository.save(owner);
-    }
 }
