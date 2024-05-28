@@ -1,6 +1,7 @@
 package com.example.stokapp.employee.domain;
 
 import com.example.stokapp.inventory.domain.Inventory;
+import com.example.stokapp.owner.domain.Owner;
 import com.example.stokapp.sale.domain.Sale;
 import com.example.stokapp.user.domain.User;
 import jakarta.persistence.*;
@@ -21,4 +22,7 @@ public class Employee extends User {
     @OneToMany
     @Column(name = "sales")
     private List<Sale> sales = new ArrayList<>();
+
+    @ManyToOne
+    private Owner owner;
 }

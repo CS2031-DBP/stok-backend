@@ -1,5 +1,6 @@
 package com.example.stokapp.owner.domain;
 
+import com.example.stokapp.employee.domain.Employee;
 import com.example.stokapp.inventory.domain.Inventory;
 import com.example.stokapp.sale.domain.Sale;
 import com.example.stokapp.supplier.domain.Supplier;
@@ -27,4 +28,7 @@ public class Owner extends User {
     @OneToMany
     @Column(name = "Inventories")
     private List<Inventory> inventory = new ArrayList<>();
+
+    @OneToMany
+    private List<Employee> employees;
 }

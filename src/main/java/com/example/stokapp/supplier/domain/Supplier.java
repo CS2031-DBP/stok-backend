@@ -1,5 +1,6 @@
 package com.example.stokapp.supplier.domain;
 
+import com.example.stokapp.employee.domain.Employee;
 import com.example.stokapp.owner.domain.Owner;
 import com.example.stokapp.product.domain.Product;
 import jakarta.persistence.*;

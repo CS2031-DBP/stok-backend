@@ -14,15 +14,15 @@ public class EmployeeController {
 
     public EmployeeController(EmployeeService employeeService) {this.employeeService = employeeService;}
 
-    @PostMapping("/create")
-    public ResponseEntity<String> addEmployee(@RequestBody Employee employee) {
-        employeeService.createEmployee(employee);
+    @PostMapping("/create/{ownerId}")
+    public ResponseEntity<String> addEmployee(@PathVariable Long ownerId, @RequestBody Employee employee) {
+        employeeService.createEmployee(employee,ownerId);
         return ResponseEntity.status(HttpStatus.CREATED).body("Employee created");
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteEmployee(@PathVariable Long id) {
-        employeeService.deleteEmployee(id);
+    @DeleteMapping("/delete/{ownerId}/{employeeId}")
+    public ResponseEntity<String> deleteEmployee(@PathVariable Long ownerId, @PathVariable Long employeeId) {
+        employeeService.deleteEmployee(ownerId,employeeId);
         return ResponseEntity.noContent().build();
     }
 
