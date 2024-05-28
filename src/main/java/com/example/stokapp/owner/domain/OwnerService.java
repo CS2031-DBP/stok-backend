@@ -29,6 +29,14 @@ public class OwnerService {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
+    //crear owner
+    public Owner createOwner(Owner owner){
+        if (!authImpl.isOwnerResource(owner.getId()))
+            throw new UnauthorizeOperationException("Not allowed");
+        return ownerRepository.save(owner);
+    }
+
+
     // ELIMINAR OWNER
     public void deleteOwner(Long ownerId) {
         if (!authImpl.isOwnerResource(ownerId))
