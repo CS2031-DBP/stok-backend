@@ -1,7 +1,9 @@
 package com.example.stokapp.employee.application;
 
 import com.example.stokapp.employee.domain.Employee;
+import com.example.stokapp.employee.domain.EmployeeResponseDto;
 import com.example.stokapp.employee.domain.EmployeeService;
+import com.example.stokapp.owner.domain.OwnerResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +16,14 @@ public class EmployeeController {
 
     public EmployeeController(EmployeeService employeeService) {this.employeeService = employeeService;}
 
-    @PostMapping("/create/{ownerId}")
-    public ResponseEntity<String> addEmployee(@PathVariable Long ownerId, @RequestBody Employee employee) {
-        employeeService.createEmployee(employee,ownerId);
+    @GetMapping("/{employeeId}")
+    public ResponseEntity<EmployeeResponseDto> getEmployee(@PathVariable Long employeeId) {
+        return ResponseEntity.ok(employeeService.getEmployee(employeeId));
+    }
+
+    @PostMapping("/create/{ownerId}/{employeeId}")
+    public ResponseEntity<String> addEmployee(@PathVariable Long ownerId, @PathVariable Long employeeId) {
+        employeeService.createEmployee(employeeId,ownerId);
         return ResponseEntity.status(HttpStatus.CREATED).body("Employee created");
     }
 
