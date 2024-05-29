@@ -43,5 +43,4 @@ public class OwnerController {
         ownerService.sendEmail(productId);
         return ResponseEntity.ok("Email sent");
     }
-
 }
