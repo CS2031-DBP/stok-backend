@@ -130,13 +130,16 @@ public class InventoryService {
     }
 
 
-    // FIND ALL INVENTORY WITH DTO //modificar que sea de un owner
-    public List<InventoryDto> findAll() {
-        String username = authImpl.getCurrentEmail();
-        if (username == null) {
+    // FIND ALL INVENTORY WITH DTO para un owner específico
+    public List<InventoryDto> findAll(Long ownerId) {
+        if (!authImpl.isOwnerResource(ownerId)) {
             throw new UnauthorizeOperationException("Not allowed");
         }
-        List<Inventory> inventories = inventoryRepository.findAll();
+
+        Owner owner = ownerRepository.findById(ownerId)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        List<Inventory> inventories = owner.getInventory();
         return inventories.stream()
                 .map(inventory -> {
                     InventoryDto inventoryDto = mapper.map(inventory, InventoryDto.class);
@@ -147,17 +150,20 @@ public class InventoryService {
                 .collect(Collectors.toList());
     }
 
-
-    public InventoryDto getInventoryByProductName(String nombre) {
-        String username = authImpl.getCurrentEmail();
-        if(username == null) {
+    // Obtener inventario por nombre de producto para un owner específico
+    public InventoryDto getInventoryByProductName(Long ownerId, String nombre) {
+        if (!authImpl.isOwnerResource(ownerId)) {
             throw new UnauthorizeOperationException("Not allowed");
         }
 
-        Inventory inventory = inventoryRepository.findInventoryByProductName(nombre);
-        if (inventory == null) {
-            throw new RuntimeException("Product not found");
-        }
+        Owner owner = ownerRepository.findById(ownerId)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        Inventory inventory = owner.getInventory().stream()
+                .filter(inv -> inv.getProduct().getName().equalsIgnoreCase(nombre))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
         InventoryDto inventoryDto = mapper.map(inventory, InventoryDto.class);
         ProductDto productDto = mapper.map(inventory.getProduct(), ProductDto.class);
         inventoryDto.setProduct(productDto);

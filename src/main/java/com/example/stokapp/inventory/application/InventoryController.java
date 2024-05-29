@@ -18,10 +18,10 @@ public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
 
-    // GET INVENTARIO
-    @GetMapping
-    public ResponseEntity<List<InventoryDto>> getAll() {
-        return ResponseEntity.ok(inventoryService.findAll());
+    // GET INVENTARIO para un owner específico
+    @GetMapping("/owner/{ownerId}")
+    public ResponseEntity<List<InventoryDto>> getAll(@PathVariable Long ownerId) {
+        return ResponseEntity.ok(inventoryService.findAll(ownerId));
     }
 
     // CREAR INVENTARIO
@@ -31,10 +31,10 @@ public class InventoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Inventory created successfully");
     }
 
-    // GET INVENTORY BY PRODUCT NAME
-    @GetMapping("/find")
-    public ResponseEntity<InventoryDto> findProductByName(@RequestBody String string){
-        InventoryDto inventory = inventoryService.getInventoryByProductName(string);
+    // GET INVENTORY BY PRODUCT NAME para un owner específico
+    @GetMapping("/find/{ownerId}")
+    public ResponseEntity<InventoryDto> findProductByName(@PathVariable Long ownerId, @RequestParam String productName) {
+        InventoryDto inventory = inventoryService.getInventoryByProductName(ownerId, productName);
         return ResponseEntity.ok(inventory);
     }
 

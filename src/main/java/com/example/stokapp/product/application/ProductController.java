@@ -3,6 +3,7 @@ package com.example.stokapp.product.application;
 import com.example.stokapp.product.domain.Product;
 import com.example.stokapp.product.domain.ProductDto;
 import com.example.stokapp.product.domain.ProductService;
+import com.example.stokapp.product.domain.ProductWithSupplierDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,18 +23,19 @@ public class ProductController {
     // FIND ALL PRODUCTS
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')")
     @GetMapping("/findall")
-    public ResponseEntity<List<ProductDto>> findAllProducts(){
-        List<ProductDto> productList = productService.getAllProducts();
+    public ResponseEntity<List<ProductWithSupplierDto>> findAllProducts() {
+        List<ProductWithSupplierDto> productList = productService.getAllProducts();
         return ResponseEntity.ok(productList);
     }
 
     // ADD PRODUCT
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')")
     @PostMapping("/add")
-    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
-        productService.addProduct(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(product);
+    public ResponseEntity<ProductDto> addProduct(@RequestBody Product product) {
+        ProductDto productDto = productService.addProduct(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productDto);
     }
+
 
     // DELETE PRODUCT
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')")

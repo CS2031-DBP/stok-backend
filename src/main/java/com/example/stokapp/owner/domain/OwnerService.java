@@ -66,9 +66,17 @@ public class OwnerService {
     }
 
 
-    public void sendEmail(Long productId) {
+    public void sendEmail(Long ownerId, Long productId) {
+        if (!authImpl.isOwnerResource(ownerId))
+            throw new UnauthorizeOperationException("Not allowed");
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (product.getSupplier() == null) {
+            throw new RuntimeException("Producto no tiene un supplier asignado");
+        }
+
         applicationEventPublisher.publishEvent(new SendEmailToSupplierEvent(this, product.getSupplier().getEmail(), product));
     }
 }

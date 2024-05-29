@@ -1,5 +1,6 @@
 package com.example.stokapp.owner.application;
 
+import com.example.stokapp.owner.domain.OwnerEmailRequest;
 import com.example.stokapp.owner.domain.OwnerInfo;
 import com.example.stokapp.owner.domain.OwnerResponseDto;
 import com.example.stokapp.owner.domain.OwnerService;
@@ -38,9 +39,9 @@ public class OwnerController {
     }
 
     // SEND EMAIL
-    @PostMapping("/send-email/{productId}")
-    public ResponseEntity<String> sendEmail(@PathVariable Long productId) {
-        ownerService.sendEmail(productId);
+    @PostMapping("/sendmail")
+    public ResponseEntity<String> sendEmail(@RequestBody OwnerEmailRequest ownerEmailRequest) {
+        ownerService.sendEmail(ownerEmailRequest.getOwnerId(),ownerEmailRequest.getProductId());
         return ResponseEntity.ok("Email sent");
     }
 
