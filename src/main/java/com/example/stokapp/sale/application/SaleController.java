@@ -1,5 +1,6 @@
 package com.example.stokapp.sale.application;
 
+import com.example.stokapp.sale.domain.CreateSaleRequest;
 import com.example.stokapp.sale.domain.Sale;
 import com.example.stokapp.sale.domain.SaleDto;
 import com.example.stokapp.sale.domain.SaleService;
@@ -22,9 +23,9 @@ public class SaleController {
     }
 
     // Endpoint para crear una venta
-    @PostMapping("/create/{ownerId}/{employeeId}")
-    public ResponseEntity<String> createSale(@PathVariable Long ownerId, @PathVariable Long employeeId, @RequestBody Sale sale) {
-        saleService.createSale(ownerId, employeeId, sale);
+    @PostMapping("/create")
+    public ResponseEntity<String> createSale(@RequestBody CreateSaleRequest request) {
+        saleService.createSale(request);
         return ResponseEntity.status(HttpStatus.CREATED).body("Sale created successfully");
     }
 
@@ -37,15 +38,15 @@ public class SaleController {
 
     // Endpoint para actualizar una venta
     @PatchMapping("/update/{saleId}")
-    public ResponseEntity<String> updateSale(@PathVariable Long saleId, @RequestBody Sale updatedSale) {
-        saleService.updateSale(saleId, updatedSale);
+    public ResponseEntity<String> updateSale(@PathVariable Long saleId, @RequestBody Integer newAmount) {
+        saleService.updateSale(saleId, newAmount);
         return ResponseEntity.ok("Sale updated successfully");
     }
 
     // Endpoint para eliminar una venta
-    @DeleteMapping("/delete/{ownerId}/{employeeId}/{saleId}")
-    public ResponseEntity<String> deleteSale(@PathVariable Long employeeId, @PathVariable Long ownerId, @PathVariable Long saleId) {
-        saleService.deleteSale(employeeId, ownerId, saleId);
+    @DeleteMapping("/delete/{ownerId}/{saleId}")
+    public ResponseEntity<String> deleteSale(@PathVariable Long ownerId, @PathVariable Long saleId) {
+        saleService.deleteSale(ownerId, saleId);
         return ResponseEntity.ok("Sale deleted successfully");
     }
 }

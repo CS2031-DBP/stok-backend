@@ -1,5 +1,6 @@
 package com.example.stokapp.inventory.application;
 
+import com.example.stokapp.inventory.domain.CreateInventoryRequest;
 import com.example.stokapp.inventory.domain.Inventory;
 import com.example.stokapp.inventory.domain.InventoryDto;
 import com.example.stokapp.inventory.domain.InventoryService;
@@ -24,9 +25,9 @@ public class InventoryController {
     }
 
     // CREAR INVENTARIO
-    @PostMapping("/create/{ownerId}/{employeeId}")
-    public ResponseEntity<String> createInventory(@PathVariable Long OwnerId, @PathVariable Long employeeId, @RequestBody Inventory inventory) {
-        inventoryService.createInventory(OwnerId, employeeId, inventory);
+    @PostMapping("/create")
+    public ResponseEntity<String> createInventory(@RequestBody CreateInventoryRequest request) {
+        inventoryService.createInventory(request.getOwnerId(), request.getProductId(), request.getQuantity());
         return ResponseEntity.status(HttpStatus.CREATED).body("Inventory created successfully");
     }
 
@@ -52,9 +53,9 @@ public class InventoryController {
     }
 
     // ELIMINAR INVENTARIO
-    @DeleteMapping("/delete/{inventoryId}/{ownerId}/{employeeId}")
-    public ResponseEntity<String> deleteInventory(@PathVariable Long ownerId, @PathVariable Long employeeId, @PathVariable Long inventoryId) {
-        inventoryService.deleteInventory(ownerId, employeeId , inventoryId);
+    @DeleteMapping("/delete/{inventoryId}/{ownerId}")
+    public ResponseEntity<String> deleteInventory(@PathVariable Long ownerId, @PathVariable Long inventoryId) {
+        inventoryService.deleteInventory(ownerId, inventoryId);
         return ResponseEntity.ok("Inventory deleted successfully");
     }
 }

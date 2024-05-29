@@ -5,6 +5,8 @@ import com.example.stokapp.owner.domain.Owner;
 import com.example.stokapp.product.domain.Product;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -13,6 +15,7 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "suppliers")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Supplier.class)
 public class Supplier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,10 +34,8 @@ public class Supplier {
     private String phoneNumber;
 
     @ManyToOne
-    @JsonBackReference
     private Owner owner;
 
-    @OneToMany(mappedBy = "supplier")
-    @JsonBackReference
+    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
 }

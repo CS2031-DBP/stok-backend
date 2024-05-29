@@ -56,19 +56,22 @@ public class InventoryService {
 
 
     // CREAR INVENTARIO
-    public void createInventory(Long ownerId, Long employeeId, Inventory inventory) {
-        if (!authImpl.isOwnerResource(ownerId) && !authImpl.isOwnerResource(employeeId)) {
+    public void createInventory(Long ownerId, Long productId, Integer quantity) {
+        if (!authImpl.isOwnerResource(ownerId)) {
             throw new UnauthorizeOperationException("Not allowed");
         }
 
         Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
-        Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"));
-        owner.getInventory().add(inventory);
-        employee.getInventory().add(inventory);
+        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
 
+        Inventory inventory = new Inventory();
+        inventory.setProduct(product);
+        inventory.setStock(quantity);
+        inventory.setOwner(owner);
+
+        owner.getInventory().add(inventory);
 
         ownerRepository.save(owner);
-        employeeRepository.save(employee);
         inventoryRepository.save(inventory);
     }
 
@@ -110,8 +113,8 @@ public class InventoryService {
 
 
     // ELIMINAR INVENTARIO
-    public void deleteInventory(Long ownerId, Long employeeId, Long inventoryId) {
-        if (!authImpl.isOwnerResource(ownerId) && !authImpl.isOwnerResource(employeeId)) {
+    public void deleteInventory(Long ownerId, Long inventoryId) {
+        if (!authImpl.isOwnerResource(ownerId)) {
             throw new UnauthorizeOperationException("Not allowed");
         }
 
@@ -119,18 +122,15 @@ public class InventoryService {
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
         Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
-        Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"));
         owner.getInventory().remove(inventory);
-        employee.getInventory().remove(inventory);
 
 
         ownerRepository.save(owner);
-        employeeRepository.save(employee);
         inventoryRepository.delete(inventory);
     }
 
 
-    // FIND ALL INVENTORY WITH DTO
+    // FIND ALL INVENTORY WITH DTO //modificar que sea de un owner
     public List<InventoryDto> findAll() {
         String username = authImpl.getCurrentEmail();
         if (username == null) {

@@ -1,10 +1,7 @@
 package com.example.stokapp.supplier.application;
 
-import com.example.stokapp.supplier.domain.Supplier;
-import com.example.stokapp.supplier.domain.SupplierDto;
-import com.example.stokapp.supplier.domain.SupplierService;
+import com.example.stokapp.supplier.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +21,9 @@ public class SupplierController {
     }
 
     // Endpoint para agregar un proveedor
-    @PostMapping("/create/{ownerId}")
-    public ResponseEntity<String> addSupplier(@RequestBody Long ownerId, @RequestBody Supplier supplier) {
-        supplierService.addSupplier(ownerId, supplier);
+    @PostMapping("/create")
+    public ResponseEntity<String> addSupplier(@RequestBody CreateSupplierRequest supplierRequest) {
+        supplierService.addSupplier(supplierRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body("Supplier created successfully");
     }
 
@@ -38,10 +35,24 @@ public class SupplierController {
     }
 
     // Endpoint para actualizar un proveedor
-    @PutMapping("/update/{ownerId}/{supplierId}")
-    public ResponseEntity<String> updateSupplier(@PathVariable Long ownerId, @PathVariable Long supplierId, @RequestBody Supplier updatedSupplier) {
-        supplierService.updateSupplier(ownerId, supplierId, updatedSupplier);
+    @PatchMapping("/update")
+    public ResponseEntity<String> updateSupplier(@RequestBody UpdateSupplierRequest updateRequest) {
+        supplierService.updateSupplier(updateRequest);
         return ResponseEntity.ok("Supplier updated successfully");
+    }
+
+    // Endpoint para agregar un producto a un proveedor
+    @PostMapping("/{ownerId}/{supplierId}/addProduct/{productId}")
+    public ResponseEntity<String> addProductToSupplier(@PathVariable Long ownerId, @PathVariable Long supplierId, @PathVariable Long productId) {
+        supplierService.addProductToSupplier(ownerId, supplierId, productId);
+        return ResponseEntity.ok("Product added to supplier successfully");
+    }
+
+    // Endpoint para quitar un producto de un proveedor
+    @DeleteMapping("/{ownerId}/{supplierId}/removeProduct/{productId}")
+    public ResponseEntity<String> removeProductFromSupplier(@PathVariable Long ownerId, @PathVariable Long supplierId, @PathVariable Long productId) {
+        supplierService.removeProductFromSupplier(ownerId, supplierId, productId);
+        return ResponseEntity.ok("Product removed from supplier successfully");
     }
 
     // Endpoint para eliminar un proveedor

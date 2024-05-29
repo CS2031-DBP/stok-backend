@@ -8,6 +8,7 @@ import com.example.stokapp.inventory.domain.Inventory;
 import com.example.stokapp.inventory.domain.InventoryDto;
 import com.example.stokapp.inventory.domain.InventoryService;
 import com.example.stokapp.inventory.domain.InventoryforSaleDto;
+import com.example.stokapp.inventory.infrastructure.InventoryRepository;
 import com.example.stokapp.owner.domain.Owner;
 import com.example.stokapp.owner.domain.OwnerService;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
@@ -48,39 +49,54 @@ public class SaleService {
     private EmployeeRepository employeeRepository;
     @Autowired
     private AuthImpl authImpl;
+    @Autowired
+    private InventoryRepository inventoryRepository;
 
     // CREAR VENTA (REDUCE STOCK DE INVENTARIO)
     @Transactional
-    public void createSale(Long ownerId, Long employeeId , Sale sale) {
-        if (!authImpl.isOwnerResource(ownerId) && !authImpl.isOwnerResource(employeeId)) {
+    public void createSale(CreateSaleRequest request) {
+        if (!authImpl.isOwnerResource(request.getOwnerId())) {
             throw new UnauthorizeOperationException("Not allowed");
         }
 
-        inventoryService.reduceInventory(sale.getInventory().getId(), sale.getAmount());
+        // Obtener el inventario de la base de datos
+        Inventory inventory = inventoryRepository.findById(request.getInventoryId())
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
+
+        // Verificar si la cantidad solicitada está disponible en el inventario
+        if (inventory.getStock() < request.getAmount()) {
+            throw new RuntimeException("Insufficient stock");
+        }
+
+        // Reducir la cantidad en el inventario
+        inventory.setStock(inventory.getStock() - request.getAmount());
+        inventoryRepository.save(inventory);
+
+        // Crear la venta
+        Sale sale = new Sale();
+        sale.setInventory(inventory);
+        sale.setAmount(request.getAmount());
         sale.setCreatedAt(ZonedDateTime.now());
 
-        // Obtener el producto relacionado con la venta
-        Product product = productRepository.findById(sale.getInventory().getProduct().getId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        // Calcular el monto de la venta
+        Product product = inventory.getProduct();
+        double saleAmount = product.getPrice() * request.getAmount();
+        sale.setSaleCant(saleAmount);
 
-        // Calcular el precio total del producto
-        sale.setSaleCant(product.getPrice() * sale.getAmount());
-
-        Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
+        // Obtener el propietario de la venta
+        Owner owner = ownerRepository.findById(request.getOwnerId())
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
         owner.getSales().add(sale);
+
+        // Guardar el propietario y la venta en la base de datos
         ownerRepository.save(owner);
-
-        Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"));
-        employee.getSales().add(sale);
-        employeeRepository.save(employee);
-
         saleRepository.save(sale);
     }
 
     // ELIMINAR VENTA (AUMENTA STOCK ELIMINADO DE INVENTARIO)
     @Transactional
-    public void deleteSale(Long ownerId, Long employeeId, Long saleId) {
-        if (!authImpl.isOwnerResource(ownerId) && !authImpl.isOwnerResource(employeeId)) {
+    public void deleteSale(Long ownerId, Long saleId) {
+        if (!authImpl.isOwnerResource(ownerId)) {
             throw new UnauthorizeOperationException("Not allowed");
         }
 
@@ -92,14 +108,12 @@ public class SaleService {
         owner.getSales().remove(sale);
         ownerRepository.save(owner);
 
-        Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"));
-        employee.getSales().remove(sale);
-        employeeRepository.save(employee);
 
         saleRepository.delete(sale);
     }
 
-    public void updateSale(Long saleId, Sale updatedSale) {
+    @Transactional
+    public void updateSale(Long saleId, Integer newAmount) {
         String username = authImpl.getCurrentEmail();
         if(username == null) {
             throw new UnauthorizeOperationException("Not allowed");
@@ -108,30 +122,25 @@ public class SaleService {
         Sale existingSale = saleRepository.findById(saleId)
                 .orElseThrow(() -> new RuntimeException("Sale not found"));
 
-        // Obtener el producto relacionado con la venta
         Product product = productRepository.findById(existingSale.getInventory().getProduct().getId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        int difference = existingSale.getAmount() - updatedSale.getAmount();
+        int difference = existingSale.getAmount() - newAmount;
         if (difference == 0) {
             throw new IllegalArgumentException("Sale not updated");
-        }
-        else if (difference < 0) {
-            inventoryService.reduceInventory(existingSale.getInventory().getId(), difference * (-1));
-            existingSale.setAmount(updatedSale.getAmount());
+        } else if (difference < 0) {
+            inventoryService.reduceInventory(existingSale.getInventory().getId(), -difference);
+            existingSale.setAmount(newAmount);
 
-            // Calcular y redondear la cantidad
-            double cantidad = product.getPrice() * updatedSale.getAmount();
+            double cantidad = product.getPrice() * newAmount;
             BigDecimal bd = new BigDecimal(cantidad);
             bd = bd.setScale(3, RoundingMode.HALF_UP);
             existingSale.setSaleCant(bd.doubleValue());
-        }
-        if (difference > 0) {
+        } else {
             inventoryService.increaseInventory(existingSale.getInventory().getId(), difference);
-            existingSale.setAmount(updatedSale.getAmount());
+            existingSale.setAmount(newAmount);
 
-            // Calcular y redondear la cantidad
-            double cantidad = product.getPrice() * updatedSale.getAmount();
+            double cantidad = product.getPrice() * newAmount;
             BigDecimal bd = new BigDecimal(cantidad);
             bd = bd.setScale(3, RoundingMode.HALF_UP);
             existingSale.setSaleCant(bd.doubleValue());

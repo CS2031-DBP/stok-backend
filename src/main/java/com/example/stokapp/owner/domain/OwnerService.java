@@ -60,36 +60,15 @@ public class OwnerService {
         if (!authImpl.isOwnerResource(id))
             throw new UnauthorizeOperationException("Not allowed");
 
-        Owner owner =ownerRepository.findById(id).orElseThrow(() -> new RuntimeException("Owner not found"));
+        Owner owner = ownerRepository.findById(id).orElseThrow(() -> new RuntimeException("Owner not found"));
 
         return mapper.map(owner, OwnerResponseDto.class);
     }
 
-    public void AddSupplier(Long ownerId, Supplier supplier){
-        if (!authImpl.isOwnerResource(ownerId))
-            throw new UnauthorizeOperationException("Not allowed");
 
-        Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
-        owner.getSuppliers().add(supplier);
-        ownerRepository.save(owner);
-    }
-
-    public void DeleteSupplier(Long ownerId, Supplier supplier){
-        if (!authImpl.isOwnerResource(ownerId))
-            throw new UnauthorizeOperationException("Not allowed");
-
-
-        Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
-        owner.getSuppliers().remove(supplier);
-        ownerRepository.save(owner);
-    }
-
-
-
-    public void sendEmail(Long productId){
-        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+    public void sendEmail(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
         applicationEventPublisher.publishEvent(new SendEmailToSupplierEvent(this, product.getSupplier().getEmail(), product));
     }
-
-
 }

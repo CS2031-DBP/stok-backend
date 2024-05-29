@@ -1,8 +1,12 @@
 package com.example.stokapp.sale.domain;
 
+import com.example.stokapp.employee.domain.Employee;
 import com.example.stokapp.inventory.domain.Inventory;
+import com.example.stokapp.owner.domain.Owner;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 
 import java.time.ZonedDateTime;
@@ -10,6 +14,7 @@ import java.time.ZonedDateTime;
 @Data
 @Entity
 @Table(name = "sales")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Sale.class)
 public class Sale {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +31,9 @@ public class Sale {
 
     @ManyToOne
     @JoinColumn(name = "inventory_id", nullable = false)
-    @JsonBackReference
     private Inventory inventory;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private Owner owner;
 }

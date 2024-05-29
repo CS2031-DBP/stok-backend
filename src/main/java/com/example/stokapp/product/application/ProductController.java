@@ -28,10 +28,11 @@ public class ProductController {
     }
 
     // ADD PRODUCT
+    @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')")
     @PostMapping("/add")
-    public ResponseEntity<String> addProduct(@RequestBody Product product) {
+    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
         productService.addProduct(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Product added");
+        return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
     // DELETE PRODUCT

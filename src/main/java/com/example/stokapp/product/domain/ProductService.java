@@ -26,8 +26,12 @@ public class ProductService {
     private AuthImpl authImpl;
 
     //ADD PRODUCT
-    public void addProduct(Product product) {
-        productRepository.save(product);
+    public Product addProduct(Product product) {
+        String username = authImpl.getCurrentEmail();
+        if(username == null) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+        return productRepository.save(product);
     }
 
     //DELETE PRODUCT

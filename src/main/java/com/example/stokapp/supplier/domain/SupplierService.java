@@ -6,6 +6,8 @@ import com.example.stokapp.owner.domain.Owner;
 import com.example.stokapp.owner.domain.OwnerResponseDto;
 import com.example.stokapp.owner.domain.OwnerService;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
+import com.example.stokapp.product.domain.Product;
+import com.example.stokapp.product.infrastructure.ProductRepository;
 import com.example.stokapp.supplier.infrastructure.SupplierRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +29,35 @@ public class SupplierService {
     private AuthImpl authImpl;
     @Autowired
     private ModelMapper mapper;
+    @Autowired
+    private ProductRepository productRepository;
 
-    // ADD SUPPLIER
-    public void addSupplier(Long ownerId, Supplier supplier) {
-        if (!authImpl.isOwnerResource(ownerId))
+    public void addSupplier(CreateSupplierRequest supplierRequest) {
+        Long ownerId = supplierRequest.getOwnerId();
+        String firstName = supplierRequest.getFirstName();
+        String lastName = supplierRequest.getLastName();
+        String email = supplierRequest.getEmail();
+        String phoneNumber = supplierRequest.getPhoneNumber();
+
+        if (!authImpl.isOwnerResource(ownerId)) {
             throw new UnauthorizeOperationException("Not allowed");
+        }
 
-        ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
-        ownerService.AddSupplier(ownerId, supplier);
+        Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        Supplier supplier = new Supplier();
+        supplier.setFirstName(firstName);
+        supplier.setLastName(lastName);
+        supplier.setEmail(email);
+        supplier.setPhoneNumber(phoneNumber);
+        supplier.setOwner(owner);
+
+        // Primero guarda el proveedor en la base de datos
         supplierRepository.save(supplier);
+
+        // Luego añade el proveedor al propietario
+        owner.getSuppliers().add(supplier);
+        ownerRepository.save(owner);
     }
 
     // DELETE SUPPLIER
@@ -45,24 +67,71 @@ public class SupplierService {
 
         Supplier supplier = supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new RuntimeException("Supplier not found"));
-        ownerService.DeleteSupplier(ownerId, supplier);
+
+        // Eliminar la relación entre el proveedor y los productos
+        supplier.getProducts().forEach(product -> product.setSupplier(null));
+
+        // Eliminar la relación entre el propietario y el proveedor
+        Owner owner = supplier.getOwner();
+        owner.getSuppliers().remove(supplier);
+        ownerRepository.save(owner);
+
+        // Eliminar el proveedor
         supplierRepository.delete(supplier);
     }
 
     // UPDATE SUPPLIER
-    public void updateSupplier(Long ownerId, Long supplierId, Supplier updatedSupplier) {
-        if (!authImpl.isOwnerResource(ownerId))
+    public void updateSupplier(UpdateSupplierRequest updateRequest) {
+        Long ownerId = updateRequest.getOwnerId();
+        Long supplierId = updateRequest.getSupplierId();
+
+        if (!authImpl.isOwnerResource(ownerId)) {
             throw new UnauthorizeOperationException("Not allowed");
+        }
 
         Supplier existingSupplier = supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new RuntimeException("Supplier not found"));
 
-        existingSupplier.setFirstName(updatedSupplier.getFirstName());
-        existingSupplier.setLastName(updatedSupplier.getLastName());
-        existingSupplier.setEmail(updatedSupplier.getEmail());
-        existingSupplier.setPhoneNumber(updatedSupplier.getPhoneNumber());
+        existingSupplier.setFirstName(updateRequest.getFirstName());
+        existingSupplier.setLastName(updateRequest.getLastName());
+        existingSupplier.setEmail(updateRequest.getEmail());
+        existingSupplier.setPhoneNumber(updateRequest.getPhoneNumber());
 
         supplierRepository.save(existingSupplier);
+    }
+
+    public void addProductToSupplier(Long ownerId, Long supplierId, Long productId) {
+        if (!authImpl.isOwnerResource(ownerId)) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+
+        Supplier supplier = supplierRepository.findById(supplierId)
+                .orElseThrow(() -> new RuntimeException("Supplier not found"));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        supplier.getProducts().add(product);
+        product.setSupplier(supplier);
+
+        supplierRepository.save(supplier);
+        productRepository.save(product);
+    }
+
+    public void removeProductFromSupplier(Long ownerId, Long supplierId, Long productId) {
+        if (!authImpl.isOwnerResource(ownerId)) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+
+        Supplier supplier = supplierRepository.findById(supplierId)
+                .orElseThrow(() -> new RuntimeException("Supplier not found"));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        supplier.getProducts().remove(product);
+        product.setSupplier(null);
+
+        supplierRepository.save(supplier);
+        productRepository.save(product);
     }
 
     // FIND ALL SUPPLIERS
