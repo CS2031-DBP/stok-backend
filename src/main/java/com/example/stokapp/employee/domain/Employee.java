@@ -27,5 +27,6 @@ public class Employee extends User {
     private List<Sale> sales = new ArrayList<>();
 
     @ManyToOne
+    @JsonBackReference
     private Owner owner;
 }

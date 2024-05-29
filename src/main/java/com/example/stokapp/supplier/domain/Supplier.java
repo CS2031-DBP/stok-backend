@@ -4,6 +4,7 @@ import com.example.stokapp.employee.domain.Employee;
 import com.example.stokapp.owner.domain.Owner;
 import com.example.stokapp.product.domain.Product;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -30,8 +31,10 @@ public class Supplier {
     private String phoneNumber;
 
     @ManyToOne
+    @JsonBackReference
     private Owner owner;
 
-    @OneToMany
+    @OneToMany(mappedBy = "supplier")
+    @JsonBackReference
     private List<Product> products;
 }

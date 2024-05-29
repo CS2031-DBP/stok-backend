@@ -3,13 +3,16 @@ package com.example.stokapp.supplier.domain;
 import com.example.stokapp.auth.AuthImpl;
 import com.example.stokapp.exceptions.UnauthorizeOperationException;
 import com.example.stokapp.owner.domain.Owner;
+import com.example.stokapp.owner.domain.OwnerResponseDto;
 import com.example.stokapp.owner.domain.OwnerService;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
 import com.example.stokapp.supplier.infrastructure.SupplierRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SupplierService {
@@ -22,6 +25,8 @@ public class SupplierService {
     private OwnerService ownerService;
     @Autowired
     private AuthImpl authImpl;
+    @Autowired
+    private ModelMapper mapper;
 
     // ADD SUPPLIER
     public void addSupplier(Long ownerId, Supplier supplier) {
@@ -61,9 +66,19 @@ public class SupplierService {
     }
 
     // FIND ALL SUPPLIERS
-    public List<Supplier> findAllSuppliers(Long ownerId) {
-        if (!authImpl.isOwnerResource(ownerId))
+    public List<SupplierDto> findAllSuppliers(Long ownerId) {
+        if (!authImpl.isOwnerResource(ownerId)) {
             throw new UnauthorizeOperationException("Not allowed");
-        return supplierRepository.findSuppliersByOwnerId(ownerId);
+        }
+
+        List<Supplier> suppliers = supplierRepository.findSuppliersByOwnerId(ownerId);
+        return suppliers.stream()
+                .map(supplier -> {
+                    SupplierDto supplierDto = mapper.map(supplier, SupplierDto.class);
+                    OwnerResponseDto ownerDto = mapper.map(supplier.getOwner(), OwnerResponseDto.class);
+                    supplierDto.setOwnerResponseDto(ownerDto);
+                    return supplierDto;
+                })
+                .collect(Collectors.toList());
     }
 }

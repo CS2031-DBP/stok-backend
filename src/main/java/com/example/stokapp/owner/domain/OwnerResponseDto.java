@@ -38,5 +38,4 @@ public class OwnerResponseDto {
 
     @JsonBackReference
     private List<Employee> employees;
-
 }

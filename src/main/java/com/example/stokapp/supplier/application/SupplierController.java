@@ -1,6 +1,7 @@
 package com.example.stokapp.supplier.application;
 
 import com.example.stokapp.supplier.domain.Supplier;
+import com.example.stokapp.supplier.domain.SupplierDto;
 import com.example.stokapp.supplier.domain.SupplierService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.CreatedBy;
@@ -31,8 +32,8 @@ public class SupplierController {
 
     // Endpoint para obtener todos los proveedores
     @GetMapping("/all/{ownerId}")
-    public ResponseEntity<List<Supplier>> getAllSuppliers(@PathVariable Long ownerId) {
-        List<Supplier> suppliers = supplierService.findAllSuppliers(ownerId);
+    public ResponseEntity<List<SupplierDto>> getAllSuppliers(@PathVariable Long ownerId) {
+        List<SupplierDto> suppliers = supplierService.findAllSuppliers(ownerId);
         return ResponseEntity.ok(suppliers);
     }
 

@@ -2,7 +2,9 @@ package com.example.stokapp.product.domain;
 
 import com.example.stokapp.qr.domain.QR;
 import com.example.stokapp.supplier.domain.Supplier;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.annotation.Nullable;
 import lombok.Data;
 
 @Entity
@@ -31,6 +33,9 @@ public class Product {
     private String qr;
 
     @ManyToOne
+    @Nullable
+    @JoinColumn(name = "supplier_id", nullable = true)
+    @JsonBackReference
     private Supplier supplier;
 
 }

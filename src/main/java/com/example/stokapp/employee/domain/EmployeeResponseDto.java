@@ -26,5 +26,5 @@ public class EmployeeResponseDto {
     @NotNull
     private String phoneNumber;
 
-    private OwnerResponseDto ownerResponseDto;
+    private OwnerResponseDto owner;
 }

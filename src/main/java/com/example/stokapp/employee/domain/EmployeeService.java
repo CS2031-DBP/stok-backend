@@ -27,14 +27,23 @@ public class EmployeeService {
     @Autowired
     private ModelMapper mapper;
 
+
     public EmployeeResponseDto getEmployee(Long employeeId) {
         String username = authImpl.getCurrentEmail();
-        if(username == null) {
+        if (username == null) {
             throw new UnauthorizeOperationException("Not allowed");
         }
-        Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Owner not found"));
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
 
-        return mapper.map(employee, EmployeeResponseDto.class);
+        EmployeeResponseDto employeeResponseDto = mapper.map(employee, EmployeeResponseDto.class);
+
+        if (employee.getOwner() != null) {
+            OwnerResponseDto ownerResponseDto = mapper.map(employee.getOwner(), OwnerResponseDto.class);
+            employeeResponseDto.setOwner(ownerResponseDto);
+        }
+
+        return employeeResponseDto;
     }
 
     //SAVE EMPLOYEE

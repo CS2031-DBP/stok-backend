@@ -6,6 +6,7 @@ import com.example.stokapp.sale.domain.Sale;
 import com.example.stokapp.supplier.domain.Supplier;
 import com.example.stokapp.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -18,22 +19,19 @@ import java.util.List;
 public class Owner extends User {
 
     @ManyToMany
-    @Column(name = "suppliers")
-    @JsonBackReference
+    @JsonManagedReference
     private List<Supplier> suppliers = new ArrayList<>();
 
     @OneToMany
-    @Column(name = "sales")
-    @JsonBackReference
+    @JsonManagedReference
     private List<Sale> sales = new ArrayList<>();
 
 
     @OneToMany
-    @Column(name = "Inventories")
-    @JsonBackReference
+    @JsonManagedReference
     private List<Inventory> inventory = new ArrayList<>();
 
     @OneToMany
-    @JsonBackReference
-    private List<Employee> employees;
+    @JsonManagedReference
+    private List<Employee> employees = new ArrayList<>();
 }

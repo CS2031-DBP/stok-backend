@@ -22,13 +22,12 @@ public class ProductController {
     // FIND ALL PRODUCTS
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')")
     @GetMapping("/findall")
-    public ResponseEntity<List<Product>> findAllProducts(){
-        List<Product> productList = productService.getAllProducts();
+    public ResponseEntity<List<ProductDto>> findAllProducts(){
+        List<ProductDto> productList = productService.getAllProducts();
         return ResponseEntity.ok(productList);
     }
 
     // ADD PRODUCT
-    @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')")
     @PostMapping("/add")
     public ResponseEntity<String> addProduct(@RequestBody Product product) {
         productService.addProduct(product);

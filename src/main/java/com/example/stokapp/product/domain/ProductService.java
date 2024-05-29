@@ -27,10 +27,6 @@ public class ProductService {
 
     //ADD PRODUCT
     public void addProduct(Product product) {
-        String username = authImpl.getCurrentEmail();
-        if(username == null) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
         productRepository.save(product);
     }
 
@@ -64,18 +60,21 @@ public class ProductService {
         productRepository.save(existingProduct);
     }
 
-    // BUSCAR TODOS LOS PRODUCTOS
-    public List<Product> getAllProducts() {
+    // BUSCAR TODOS LOS PRODUCTOS /falta dto
+    public List<ProductDto> getAllProducts() {
         String username = authImpl.getCurrentEmail();
-        if(username == null) {
+        if (username == null) {
             throw new UnauthorizeOperationException("Not allowed");
         }
 
         List<Product> products = productRepository.findAll();
-        if(products.isEmpty()){
+        if (products.isEmpty()) {
             throw new RuntimeException("No products found.");
         }
-        return products;
+
+        return products.stream()
+                .map(product -> mapper.map(product, ProductDto.class))
+                .collect(Collectors.toList());
     }
 
 }
