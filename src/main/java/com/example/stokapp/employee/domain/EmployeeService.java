@@ -3,15 +3,12 @@ package com.example.stokapp.employee.domain;
 import com.example.stokapp.auth.AuthImpl;
 import com.example.stokapp.employee.infrastructure.EmployeeRepository;
 import com.example.stokapp.exceptions.UnauthorizeOperationException;
-import com.example.stokapp.inventory.domain.Inventory;
 import com.example.stokapp.owner.domain.Owner;
 import com.example.stokapp.owner.domain.OwnerResponseDto;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class EmployeeService {
@@ -22,19 +19,24 @@ public class EmployeeService {
     private OwnerRepository ownerRepository;
 
     @Autowired
-    AuthImpl authImpl;
+    private AuthImpl authImpl;
 
     @Autowired
     private ModelMapper mapper;
 
-
-    public EmployeeResponseDto getEmployee(Long employeeId) {
+    // GET EMPLOYEE
+    public EmployeeResponseDto getEmployee(Long ownerId, Long employeeId) {
         String username = authImpl.getCurrentEmail();
         if (username == null) {
             throw new UnauthorizeOperationException("Not allowed");
         }
+
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        if (!employee.getOwner().getId().equals(ownerId)) {
+            throw new UnauthorizeOperationException("Not allowed to access this employee");
+        }
 
         EmployeeResponseDto employeeResponseDto = mapper.map(employee, EmployeeResponseDto.class);
 
@@ -46,11 +48,12 @@ public class EmployeeService {
         return employeeResponseDto;
     }
 
-    //SAVE EMPLOYEE
-    public void createEmployee(Long employeeId, Long ownerId) {
-        if (!authImpl.isOwnerResource(employeeId) && !authImpl.isOwnerResource(ownerId)) {
+    // ASSIGN EMPLOYEE TO OWNER
+    public void assignEmployeeToOwner(Long ownerId, Long employeeId) {
+        if (!authImpl.isOwnerResource(ownerId)) {
             throw new UnauthorizeOperationException("Not allowed");
         }
+
         Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"));
 
@@ -59,30 +62,37 @@ public class EmployeeService {
         employeeRepository.save(employee);
     }
 
-    //DELETE EMPLOYEE
-    public void deleteEmployee(Long ownerId , Long employeeId) {
-        if (!authImpl.isOwnerResource(ownerId) && !authImpl.isOwnerResource(employeeId)) {
+    // DELETE EMPLOYEE FROM OWNER
+    public void deleteEmployeeFromOwner(Long ownerId, Long employeeId) {
+        if (!authImpl.isOwnerResource(ownerId)) {
             throw new UnauthorizeOperationException("Not allowed");
         }
+
         Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        if (!employee.getOwner().getId().equals(ownerId)) {
+            throw new UnauthorizeOperationException("Not allowed to access this employee");
+        }
+
         owner.getEmployees().remove(employee);
-        employeeRepository.deleteById(employeeId);
+        employee.setOwner(null);
+        employeeRepository.save(employee);
     }
 
-    //UPDATE EMPLOYEE
-    public void updateEmployee(Long employeeId, Employee employeeNuevo) {
+    // UPDATE EMPLOYEE
+    public void updateEmployee(Long employeeId, UpdateEmployeeRequest updatedEmployeeRequest) {
         if (!authImpl.isOwnerResource(employeeId)) {
             throw new UnauthorizeOperationException("Not allowed");
         }
-        Employee employeeToUpdate = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"));
 
-        employeeToUpdate.setFirstName(employeeNuevo.getFirstName());
-        employeeToUpdate.setLastName(employeeNuevo.getLastName());
-        employeeToUpdate.setEmail(employeeNuevo.getEmail());
-        employeeToUpdate.setPhoneNumber(employeeNuevo.getPhoneNumber());
+        Employee employeeToUpdate = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        employeeToUpdate.setFirstName(updatedEmployeeRequest.getFirstName());
+        employeeToUpdate.setLastName(updatedEmployeeRequest.getLastName());
+        employeeToUpdate.setPhoneNumber(updatedEmployeeRequest.getPhoneNumber());
 
         employeeRepository.save(employeeToUpdate);
-
     }
 }
