@@ -49,5 +49,4 @@ public class OwnerController {
         ownerService.sendEmail(ownerEmailRequest.getOwnerId(),ownerEmailRequest.getProductId());
         return ResponseEntity.ok("Email sent");
     }
-
 }
