@@ -17,4 +17,5 @@ public class ProductDto {
 
     private Category category;
 
+    private String qr;
 }

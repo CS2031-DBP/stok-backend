@@ -16,5 +16,7 @@ public class ProductWithSupplierDto {
 
     private Category category;
 
+    private String qr;
+
     private SupplierWithNoProductDto supplier;
 }

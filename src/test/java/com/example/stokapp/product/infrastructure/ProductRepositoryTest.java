@@ -34,6 +34,7 @@ public class ProductRepositoryTest {
         product.setDescription("A useful widget");
         product.setPrice(19.99);
         product.setCategory(Category.Chocolate);
+        product.setQr("Q1234");
         entityManager.persistAndFlush(product);
     }
 

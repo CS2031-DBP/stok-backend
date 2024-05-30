@@ -1,9 +1,8 @@
 package com.example.stokapp.product.application;
 
-import com.example.stokapp.product.domain.Category;
-import com.example.stokapp.product.domain.Product;
-import com.example.stokapp.product.domain.ProductDto;
-import com.example.stokapp.product.domain.ProductService;
+import com.example.stokapp.product.domain.*;
+import com.example.stokapp.supplier.domain.Supplier;
+import com.example.stokapp.supplier.domain.SupplierWithNoProductDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -52,12 +51,15 @@ public class ProductControllerTest {
     @Test
     @WithMockUser(roles = {"OWNER", "EMPLOYEE"})
     public void testFindAllProducts() throws Exception {
-        ProductDto productDto = new ProductDto();
-        productDto.setName("Product Name");
-        productDto.setDescription("Product Description");
-        productDto.setPrice(99.99);
-        productDto.setCategory(Category.Fritura);
-        List<ProductDto> productList = Arrays.asList(productDto);
+        SupplierWithNoProductDto supplierWithNoProductDto = new SupplierWithNoProductDto();
+        ProductWithSupplierDto product = new ProductWithSupplierDto();
+        product.setName("Product Name");
+        product.setDescription("Product Description");
+        product.setPrice(99.99);
+        product.setCategory(Category.Fritura);
+        product.setQr("Q1234");
+        product.setSupplier(supplierWithNoProductDto);
+        List<ProductWithSupplierDto> productList = Arrays.asList(product);
         when(productService.getAllProducts()).thenReturn(productList);
 
         mockMvc.perform(get("/product/findall"))
@@ -71,7 +73,7 @@ public class ProductControllerTest {
     @Test
     @WithMockUser(roles = {"OWNER", "EMPLOYEE"})
     public void testAddProduct() throws Exception {
-        Product product = new Product();
+        ProductDto product = new ProductDto();
         product.setId(1L);
         product.setName("Product Name");
         product.setDescription("Product Description");

@@ -30,6 +30,7 @@ public class Product {
     @Column(name = "category", nullable = false)
     private Category category;
 
+    @Column(name = "qr", nullable = false)
     private String qr;
 
     @ManyToOne

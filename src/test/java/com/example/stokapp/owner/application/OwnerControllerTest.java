@@ -5,6 +5,9 @@ import com.example.stokapp.owner.infrastructure.OwnerRepository;
 import com.example.stokapp.product.domain.Category;
 import com.example.stokapp.product.domain.Product;
 import com.example.stokapp.product.infrastructure.ProductRepository;
+import com.example.stokapp.supplier.domain.Supplier;
+import com.example.stokapp.supplier.infrastructure.SupplierRepository;
+import com.example.stokapp.user.domain.Role;
 import com.example.stokapp.utils.Reader;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +21,12 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
+import static org.mockito.Mockito.mock;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -39,6 +46,8 @@ public class OwnerControllerTest {
     String token = "";
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private SupplierRepository supplierRepository;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -110,19 +119,40 @@ public class OwnerControllerTest {
 
     @Test
     public void testSendEmail() throws Exception {
-        // Create a product
+        Long ownerId = ownerRepository
+                .findByEmail("santiago.silva@utec.edu.pe")
+                .orElseThrow()
+                .getId();
+        Owner owner = ownerRepository.findById(ownerId).orElseThrow();
+
+        Supplier supplier = new Supplier();
+        List<Product> products = new ArrayList<>();
+        supplier.setId(1L);
+        supplier.setFirstName("John");
+        supplier.setLastName("Doe");
+        supplier.setEmail("john.doe@example.com");
+        supplier.setPhoneNumber("123456789");
+        supplier.setOwner(owner);
+        supplier.setProducts(products);
+        supplierRepository.save(supplier);
+
         Product product = new Product();
         product.setName("Doritos");
         product.setDescription("Con extra queso");
         product.setPrice(5.0);
         product.setCategory(Category.Fritura);
+        product.setQr("Q1234");
+        product.setSupplier(supplier);
 
         Product savedProduct = productRepository.save(product);
 
         Long productId = savedProduct.getId();
 
-        mockMvc.perform(post("/owner/send-email/{productId}", productId)
-                        .contentType(APPLICATION_JSON))
+        String requestContent = String.format("{\"ownerId\": %d, \"productId\": %d}", ownerId, productId);
+
+        mockMvc.perform(post("/owner/sendmail")
+                        .contentType(APPLICATION_JSON)
+                        .content(requestContent))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Email sent"));
     }
