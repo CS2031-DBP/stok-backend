@@ -24,19 +24,11 @@ public class EmployeeService {
     @Autowired
     private ModelMapper mapper;
 
-    // GET EMPLOYEE
     public EmployeeResponseDto getEmployee(Long ownerId, Long employeeId) {
-        String username = authImpl.getCurrentEmail();
-        if (username == null) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+        verifyOwnerOrEmployee(ownerId);
 
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
-
-        if (!employee.getOwner().getId().equals(ownerId)) {
-            throw new UnauthorizeOperationException("Not allowed to access this employee");
-        }
 
         EmployeeResponseDto employeeResponseDto = mapper.map(employee, EmployeeResponseDto.class);
 
@@ -48,11 +40,8 @@ public class EmployeeService {
         return employeeResponseDto;
     }
 
-    // ASSIGN EMPLOYEE TO OWNER
     public void assignEmployeeToOwner(Long ownerId, Long employeeId) {
-        if (!authImpl.isOwnerResource(ownerId)) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+        verifyOwnerOrEmployee(ownerId);
 
         Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"));
@@ -62,37 +51,44 @@ public class EmployeeService {
         employeeRepository.save(employee);
     }
 
-    // DELETE EMPLOYEE FROM OWNER
     public void deleteEmployeeFromOwner(Long ownerId, Long employeeId) {
-        if (!authImpl.isOwnerResource(ownerId)) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+        verifyOwnerOrEmployee(ownerId);
 
         Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"));
-
-        if (!employee.getOwner().getId().equals(ownerId)) {
-            throw new UnauthorizeOperationException("Not allowed to access this employee");
-        }
-
         owner.getEmployees().remove(employee);
-        employee.setOwner(null);
-        employeeRepository.save(employee);
+
+        ownerRepository.save(owner);
     }
 
-    // UPDATE EMPLOYEE
-    public void updateEmployee(Long employeeId, UpdateEmployeeRequest updatedEmployeeRequest) {
-        if (!authImpl.isOwnerResource(employeeId)) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+    public void updateEmployee(Long employeeId, UpdateEmployeeRequest updateEmployeeRequest) {
+        verifyOwnerOrEmployee(employeeId);
 
         Employee employeeToUpdate = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
-        employeeToUpdate.setFirstName(updatedEmployeeRequest.getFirstName());
-        employeeToUpdate.setLastName(updatedEmployeeRequest.getLastName());
-        employeeToUpdate.setPhoneNumber(updatedEmployeeRequest.getPhoneNumber());
+        employeeToUpdate.setFirstName(updateEmployeeRequest.getFirstName());
+        employeeToUpdate.setLastName(updateEmployeeRequest.getLastName());
+        employeeToUpdate.setPhoneNumber(updateEmployeeRequest.getPhoneNumber());
 
         employeeRepository.save(employeeToUpdate);
+    }
+
+    private void verifyOwnerOrEmployee(Long ownerId) {
+        String currentEmail = authImpl.getCurrentEmail();
+        if (currentEmail == null) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+
+        Owner owner = ownerRepository.findById(ownerId)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        boolean isOwner = authImpl.isOwnerResource(ownerId);
+        boolean isEmployee = owner.getEmployees().stream()
+                .anyMatch(employee -> employee.getEmail().equals(currentEmail));
+
+        if (!isOwner && !isEmployee) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
     }
 }

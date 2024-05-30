@@ -1,19 +1,15 @@
 package com.example.stokapp.sale.domain;
 
 import com.example.stokapp.auth.AuthImpl;
-import com.example.stokapp.employee.domain.Employee;
 import com.example.stokapp.employee.infrastructure.EmployeeRepository;
 import com.example.stokapp.exceptions.UnauthorizeOperationException;
 import com.example.stokapp.inventory.domain.Inventory;
-import com.example.stokapp.inventory.domain.InventoryDto;
 import com.example.stokapp.inventory.domain.InventoryService;
 import com.example.stokapp.inventory.domain.InventoryforSaleDto;
 import com.example.stokapp.inventory.infrastructure.InventoryRepository;
 import com.example.stokapp.owner.domain.Owner;
-import com.example.stokapp.owner.domain.OwnerService;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
 import com.example.stokapp.product.domain.Product;
-import com.example.stokapp.product.domain.ProductDto;
 import com.example.stokapp.product.infrastructure.ProductRepository;
 import com.example.stokapp.sale.infrastructure.SaleRepository;
 import org.modelmapper.ModelMapper;
@@ -40,60 +36,69 @@ public class SaleService {
     private ProductRepository productRepository;
 
     @Autowired
-    ModelMapper mapper;
-    @Autowired
-    private OwnerService ownerService;
+    private ModelMapper mapper;
+
     @Autowired
     private OwnerRepository ownerRepository;
+
     @Autowired
     private EmployeeRepository employeeRepository;
+
     @Autowired
     private AuthImpl authImpl;
+
     @Autowired
     private InventoryRepository inventoryRepository;
 
-    // CREAR VENTA (REDUCE STOCK DE INVENTARIO)
-    @Transactional
-    public SaleDto createSale(CreateSaleRequest request) {
-        if (!authImpl.isOwnerResource(request.getOwnerId())) {
+    private void verifyOwnerOrEmployee(Long ownerId) {
+        String currentEmail = authImpl.getCurrentEmail();
+        if (currentEmail == null) {
             throw new UnauthorizeOperationException("Not allowed");
         }
 
-        // Obtener el inventario de la base de datos
+        Owner owner = ownerRepository.findById(ownerId)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        boolean isOwner = authImpl.isOwnerResource(ownerId);
+        boolean isEmployee = owner.getEmployees().stream()
+                .anyMatch(employee -> employee.getEmail().equals(currentEmail));
+
+        if (!isOwner && !isEmployee) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+    }
+
+    @Transactional
+    public SaleDto createSale(CreateSaleRequest request) {
+        verifyOwnerOrEmployee(request.getOwnerId());
+
         Inventory inventory = inventoryRepository.findById(request.getInventoryId())
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
-        // Verificar si la cantidad solicitada está disponible en el inventario
         if (inventory.getStock() < request.getAmount()) {
             throw new RuntimeException("Insufficient stock");
         }
 
-        // Reducir la cantidad en el inventario
         inventory.setStock(inventory.getStock() - request.getAmount());
         inventoryRepository.save(inventory);
 
-        // Crear la venta
         Sale sale = new Sale();
         sale.setInventory(inventory);
         sale.setAmount(request.getAmount());
         sale.setCreatedAt(ZonedDateTime.now());
 
-        // Calcular el monto de la venta
         Product product = inventory.getProduct();
         double saleAmount = product.getPrice() * request.getAmount();
         sale.setSaleCant(saleAmount);
 
-        // Obtener el propietario de la venta
         Owner owner = ownerRepository.findById(request.getOwnerId())
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
         owner.getSales().add(sale);
         sale.setOwner(owner);
 
-        // Guardar el propietario y la venta en la base de datos
         ownerRepository.save(owner);
         saleRepository.save(sale);
 
-        // Mapear la venta a SaleDto
         SaleDto saleDto = mapper.map(sale, SaleDto.class);
         InventoryforSaleDto inventoryDto = mapper.map(inventory, InventoryforSaleDto.class);
         saleDto.setInventoryforSaleDto(inventoryDto);
@@ -101,30 +106,25 @@ public class SaleService {
         return saleDto;
     }
 
-    // ELIMINAR VENTA (AUMENTA STOCK ELIMINADO DE INVENTARIO)
     @Transactional
     public void deleteSale(Long ownerId, Long saleId) {
-        if (!authImpl.isOwnerResource(ownerId)) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+        verifyOwnerOrEmployee(ownerId);
 
         Sale sale = saleRepository.findById(saleId)
                 .orElseThrow(() -> new RuntimeException("Sale not found"));
-        inventoryService.increaseInventory(sale.getInventory().getId(), sale.getAmount());
+
+        inventoryService.increaseInventory(ownerId, sale.getInventory().getId(), sale.getAmount());
 
         Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
         owner.getSales().remove(sale);
         ownerRepository.save(owner);
-
 
         saleRepository.delete(sale);
     }
 
     @Transactional
     public void updateSale(UpdateSaleRequest request) {
-        if (!authImpl.isOwnerResource(request.getOwnerId())) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+        verifyOwnerOrEmployee(request.getOwnerId());
 
         Sale existingSale = saleRepository.findById(request.getSaleId())
                 .orElseThrow(() -> new RuntimeException("Sale not found"));
@@ -136,7 +136,7 @@ public class SaleService {
         if (difference == 0) {
             throw new IllegalArgumentException("Sale not updated");
         } else if (difference < 0) {
-            inventoryService.reduceInventory(existingSale.getInventory().getId(), -difference);
+            inventoryService.reduceInventory(existingSale.getOwner().getId(), existingSale.getInventory().getId(), -difference);
             existingSale.setAmount(request.getNewAmount());
 
             double cantidad = product.getPrice() * request.getNewAmount();
@@ -144,7 +144,7 @@ public class SaleService {
             bd = bd.setScale(3, RoundingMode.HALF_UP);
             existingSale.setSaleCant(bd.doubleValue());
         } else {
-            inventoryService.increaseInventory(existingSale.getInventory().getId(), difference);
+            inventoryService.increaseInventory(existingSale.getOwner().getId(), existingSale.getInventory().getId(), difference);
             existingSale.setAmount(request.getNewAmount());
 
             double cantidad = product.getPrice() * request.getNewAmount();
@@ -156,12 +156,8 @@ public class SaleService {
         saleRepository.save(existingSale);
     }
 
-
-    // UN GET DE TODAS LOS SALES CREADOS
     public List<SaleDto> getAllSales(Long ownerId) {
-        if (!authImpl.isOwnerResource(ownerId)) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+        verifyOwnerOrEmployee(ownerId);
 
         Owner owner = ownerRepository.findById(ownerId)
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
@@ -177,11 +173,8 @@ public class SaleService {
                 .collect(Collectors.toList());
     }
 
-
     public SaleDto getSale(Long ownerId, Long saleId) {
-        if (!authImpl.isOwnerResource(ownerId)) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+        verifyOwnerOrEmployee(ownerId);
 
         Owner owner = ownerRepository.findById(ownerId)
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
@@ -199,5 +192,4 @@ public class SaleService {
 
         return saleDto;
     }
-
 }
