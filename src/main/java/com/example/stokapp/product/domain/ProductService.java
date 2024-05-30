@@ -5,6 +5,7 @@ import com.example.stokapp.configuration.DtoConfig;
 import com.example.stokapp.exceptions.NotFound;
 import com.example.stokapp.exceptions.UnauthorizeOperationException;
 import com.example.stokapp.product.infrastructure.ProductRepository;
+import com.example.stokapp.supplier.domain.SupplierWithNoProductDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,13 +26,14 @@ public class ProductService {
     @Autowired
     private AuthImpl authImpl;
 
-    //ADD PRODUCT
-    public Product addProduct(Product product) {
+    // ADD PRODUCT
+    public ProductDto addProduct(Product product) {
         String username = authImpl.getCurrentEmail();
-        if(username == null) {
+        if (username == null) {
             throw new UnauthorizeOperationException("Not allowed");
         }
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        return mapper.map(savedProduct, ProductDto.class);
     }
 
     //DELETE PRODUCT
@@ -64,8 +66,8 @@ public class ProductService {
         productRepository.save(existingProduct);
     }
 
-    // BUSCAR TODOS LOS PRODUCTOS /falta dto
-    public List<ProductDto> getAllProducts() {
+    // BUSCAR TODOS LOS PRODUCTOS
+    public List<ProductWithSupplierDto> getAllProducts() {
         String username = authImpl.getCurrentEmail();
         if (username == null) {
             throw new UnauthorizeOperationException("Not allowed");
@@ -77,7 +79,14 @@ public class ProductService {
         }
 
         return products.stream()
-                .map(product -> mapper.map(product, ProductDto.class))
+                .map(product -> {
+                    ProductWithSupplierDto productDto = mapper.map(product, ProductWithSupplierDto.class);
+                    if (product.getSupplier() != null) {
+                        SupplierWithNoProductDto supplierDto = mapper.map(product.getSupplier(), SupplierWithNoProductDto.class);
+                        productDto.setSupplier(supplierDto);
+                    }
+                    return productDto;
+                })
                 .collect(Collectors.toList());
     }
 

@@ -1,12 +1,11 @@
 package com.example.stokapp.product.domain;
 
-import com.example.stokapp.inventory.domain.Inventory;
+import com.example.stokapp.supplier.domain.SupplierDto;
+import com.example.stokapp.supplier.domain.SupplierWithNoProductDto;
 import lombok.Data;
-import java.time.ZonedDateTime;
 
 @Data
-public class ProductDto {
-
+public class ProductWithSupplierDto {
     private Long id;
 
     private String name;
@@ -17,4 +16,5 @@ public class ProductDto {
 
     private Category category;
 
+    private SupplierWithNoProductDto supplier;
 }

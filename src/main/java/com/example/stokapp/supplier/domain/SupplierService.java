@@ -7,6 +7,7 @@ import com.example.stokapp.owner.domain.OwnerResponseDto;
 import com.example.stokapp.owner.domain.OwnerService;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
 import com.example.stokapp.product.domain.Product;
+import com.example.stokapp.product.domain.ProductDto;
 import com.example.stokapp.product.infrastructure.ProductRepository;
 import com.example.stokapp.supplier.infrastructure.SupplierRepository;
 import org.modelmapper.ModelMapper;
@@ -146,6 +147,12 @@ public class SupplierService {
                     SupplierDto supplierDto = mapper.map(supplier, SupplierDto.class);
                     OwnerResponseDto ownerDto = mapper.map(supplier.getOwner(), OwnerResponseDto.class);
                     supplierDto.setOwnerResponseDto(ownerDto);
+
+                    List<ProductDto> productDtos = supplier.getProducts().stream()
+                            .map(product -> mapper.map(product, ProductDto.class))
+                            .collect(Collectors.toList());
+                    supplierDto.setProducts(productDtos);
+
                     return supplierDto;
                 })
                 .collect(Collectors.toList());
