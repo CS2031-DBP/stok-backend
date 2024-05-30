@@ -38,6 +38,4 @@ public class EmployeeController {
         employeeService.updateEmployee(id, employee);
         return ResponseEntity.ok("Employee updated");
     }
-
-
 }
