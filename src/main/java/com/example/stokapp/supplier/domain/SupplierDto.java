@@ -1,18 +1,13 @@
 package com.example.stokapp.supplier.domain;
 
-
-import com.example.stokapp.owner.domain.Owner;
 import com.example.stokapp.owner.domain.OwnerResponseDto;
-import com.example.stokapp.product.domain.Product;
-import jakarta.persistence.Column;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import com.example.stokapp.product.domain.ProductDto;
 import lombok.Data;
-
 import java.util.List;
 
 @Data
 public class SupplierDto {
+
     private Long id;
 
     private String firstName;
@@ -25,5 +20,5 @@ public class SupplierDto {
 
     private OwnerResponseDto ownerResponseDto;
 
-    private List<Product> products;
+    private List<ProductDto> products;
 }

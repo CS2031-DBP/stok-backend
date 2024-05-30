@@ -1,6 +1,7 @@
 package com.example.stokapp.inventory.domain;
 
 import com.example.stokapp.product.domain.Product;
+import com.example.stokapp.product.domain.ProductDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -10,6 +11,6 @@ public class InventoryforSaleDto {
     private Long id;
 
     @NotNull
-    private Product product;
+    private ProductDto product;
 
 }
