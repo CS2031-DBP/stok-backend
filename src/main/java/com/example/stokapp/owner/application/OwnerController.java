@@ -8,6 +8,7 @@ import com.example.stokapp.owner.infrastructure.OwnerRepository;
 import com.example.stokapp.supplier.infrastructure.SupplierRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,12 +20,14 @@ public class OwnerController {
 
 
     // GET PROPIETARIO
+    @PreAuthorize("hasRole('ROLE_OWNER')")
     @GetMapping("/{id}")
     public ResponseEntity<OwnerResponseDto> findOwner(@PathVariable Long id) {
         return ResponseEntity.ok(ownerService.getOwnerById(id));
     }
 
     // ELIMINAR PROPIETARIO
+    @PreAuthorize("hasRole('ROLE_OWNER')")
     @DeleteMapping("/delete/{ownerId}")
     public ResponseEntity<String> deleteOwner(@PathVariable Long ownerId) {
         ownerService.deleteOwner(ownerId);
@@ -32,6 +35,7 @@ public class OwnerController {
     }
 
     // ACTUALIZAR PROPIETARIO
+    @PreAuthorize("hasRole('ROLE_OWNER')")
     @PatchMapping("/update/{ownerId}")
     public ResponseEntity<String> updateOwner(@PathVariable Long ownerId, @RequestBody OwnerInfo ownerInfo) {
         ownerService.updateOwner(ownerId, ownerInfo);
@@ -39,10 +43,10 @@ public class OwnerController {
     }
 
     // SEND EMAIL
+    @PreAuthorize("hasRole('ROLE_OWNER')")
     @PostMapping("/sendmail")
     public ResponseEntity<String> sendEmail(@RequestBody OwnerEmailRequest ownerEmailRequest) {
-        ownerService.sendEmail(ownerEmailRequest.getOwnerId(),ownerEmailRequest.getProductId());
+        ownerService.sendEmail(ownerEmailRequest.getOwnerId(), ownerEmailRequest.getProductId());
         return ResponseEntity.ok("Email sent");
     }
-
 }

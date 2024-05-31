@@ -21,15 +21,15 @@ import java.util.List;
 @EqualsAndHashCode(callSuper=false)
 public class Owner extends User {
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = CascadeType.ALL)
     private List<Supplier> suppliers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Sale> sales = new ArrayList<>();
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Inventory> inventory = new ArrayList<>();
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Employee> employees = new ArrayList<>();
 }

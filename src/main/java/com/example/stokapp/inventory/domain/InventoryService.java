@@ -1,17 +1,11 @@
 package com.example.stokapp.inventory.domain;
 
 import com.example.stokapp.auth.AuthImpl;
-import com.example.stokapp.employee.domain.Employee;
 import com.example.stokapp.employee.domain.EmployeeService;
-import com.example.stokapp.employee.infrastructure.EmployeeRepository;
-import com.example.stokapp.event.SendEmailToSupplierEvent;
 import com.example.stokapp.event.SendLowStockEmailEvent;
-import com.example.stokapp.event.WelcomeEmailEvent;
-import com.example.stokapp.exceptions.NotFound;
 import com.example.stokapp.exceptions.UnauthorizeOperationException;
 import com.example.stokapp.inventory.infrastructure.InventoryRepository;
 import com.example.stokapp.owner.domain.Owner;
-import com.example.stokapp.owner.domain.OwnerService;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
 import com.example.stokapp.product.domain.Product;
 import com.example.stokapp.product.domain.ProductDto;
@@ -22,7 +16,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,28 +31,37 @@ public class InventoryService {
     private OwnerRepository ownerRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
-
-    @Autowired
-    private OwnerService ownerService;
+    private EmployeeService employeeService;
 
     @Autowired
     private ModelMapper mapper;
 
     @Autowired
-    AuthImpl authImpl;
+    private AuthImpl authImpl;
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
-    @Autowired
-    private EmployeeService employeeService;
 
-
-    // CREAR INVENTARIO
-    public void createInventory(Long ownerId, Long productId, Integer quantity) {
-        if (!authImpl.isOwnerResource(ownerId)) {
+    private void verifyOwnerOrEmployee(Long ownerId) {
+        String currentEmail = authImpl.getCurrentEmail();
+        if (currentEmail == null) {
             throw new UnauthorizeOperationException("Not allowed");
         }
+
+        Owner owner = ownerRepository.findById(ownerId)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        boolean isOwner = authImpl.isOwnerResource(ownerId);
+        boolean isEmployee = owner.getEmployees().stream()
+                .anyMatch(employee -> employee.getEmail().equals(currentEmail));
+
+        if (!isOwner && !isEmployee) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+    }
+
+    public void createInventory(Long ownerId, Long productId, Integer quantity) {
+        verifyOwnerOrEmployee(ownerId);
 
         Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
         Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
@@ -75,12 +77,8 @@ public class InventoryService {
         inventoryRepository.save(inventory);
     }
 
-    // REDUCIR STOCK
-    public void reduceInventory(Long inventoryId, Integer quantity) {
-        String username = authImpl.getCurrentEmail();
-        if(username == null) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+    public void reduceInventory(Long ownerId, Long inventoryId, Integer quantity) {
+        verifyOwnerOrEmployee(ownerId);
 
         Inventory inventory = inventoryRepository.findById(inventoryId)
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
@@ -97,12 +95,8 @@ public class InventoryService {
         }
     }
 
-    // AUMENTAR SOTCK
-    public void increaseInventory(Long inventoryId, Integer quantity) {
-        String username = authImpl.getCurrentEmail();
-        if(username == null) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+    public void increaseInventory(Long ownerId, Long inventoryId, Integer quantity) {
+        verifyOwnerOrEmployee(ownerId);
 
         Inventory inventory = inventoryRepository.findById(inventoryId)
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
@@ -111,12 +105,8 @@ public class InventoryService {
         inventoryRepository.save(inventory);
     }
 
-
-    // ELIMINAR INVENTARIO
     public void deleteInventory(Long ownerId, Long inventoryId) {
-        if (!authImpl.isOwnerResource(ownerId)) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+        verifyOwnerOrEmployee(ownerId);
 
         Inventory inventory = inventoryRepository.findById(inventoryId)
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
@@ -124,17 +114,12 @@ public class InventoryService {
         Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
         owner.getInventory().remove(inventory);
 
-
         ownerRepository.save(owner);
         inventoryRepository.delete(inventory);
     }
 
-
-    // FIND ALL INVENTORY WITH DTO para un owner específico
     public List<InventoryDto> findAll(Long ownerId) {
-        if (!authImpl.isOwnerResource(ownerId)) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+        verifyOwnerOrEmployee(ownerId);
 
         Owner owner = ownerRepository.findById(ownerId)
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
@@ -150,11 +135,8 @@ public class InventoryService {
                 .collect(Collectors.toList());
     }
 
-    // Obtener inventario por nombre de producto para un owner específico
     public InventoryDto getInventoryByProductName(Long ownerId, String nombre) {
-        if (!authImpl.isOwnerResource(ownerId)) {
-            throw new UnauthorizeOperationException("Not allowed");
-        }
+        verifyOwnerOrEmployee(ownerId);
 
         Owner owner = ownerRepository.findById(ownerId)
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
