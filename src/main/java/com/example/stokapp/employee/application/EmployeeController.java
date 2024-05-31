@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/employees")
+    @RequestMapping("/employees")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -34,7 +34,7 @@ public class EmployeeController {
 
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')")
     @DeleteMapping("/delete/{ownerId}/{employeeId}")
-    public ResponseEntity<String> deleteEmployeeFromOwner(@PathVariable Long ownerId, @PathVariable Long employeeId) {
+    public ResponseEntity<Void> deleteEmployeeFromOwner(@PathVariable Long ownerId, @PathVariable Long employeeId) {
         employeeService.deleteEmployeeFromOwner(ownerId, employeeId);
         return ResponseEntity.noContent().build();
     }

@@ -6,9 +6,12 @@ import com.example.stokapp.exceptions.UnauthorizeOperationException;
 import com.example.stokapp.owner.domain.Owner;
 import com.example.stokapp.owner.domain.OwnerResponseDto;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class EmployeeService {
@@ -40,6 +43,7 @@ public class EmployeeService {
         return employeeResponseDto;
     }
 
+    @Transactional
     public void assignEmployeeToOwner(Long ownerId, Long employeeId) {
         verifyOwnerOrEmployee(ownerId);
 
@@ -49,7 +53,9 @@ public class EmployeeService {
         owner.getEmployees().add(employee);
         employee.setOwner(owner);
         employeeRepository.save(employee);
+        ownerRepository.save(owner);
     }
+
 
     public void deleteEmployeeFromOwner(Long ownerId, Long employeeId) {
         verifyOwnerOrEmployee(ownerId);
@@ -59,10 +65,12 @@ public class EmployeeService {
         owner.getEmployees().remove(employee);
 
         ownerRepository.save(owner);
+        employeeRepository.delete(employee);
     }
 
     public void updateEmployee(Long employeeId, UpdateEmployeeRequest updateEmployeeRequest) {
-        verifyOwnerOrEmployee(employeeId);
+        if (!authImpl.isOwnerResource(employeeId))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
         Employee employeeToUpdate = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));

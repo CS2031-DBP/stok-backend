@@ -1,12 +1,9 @@
 package com.example.stokapp.owner.application;
 
+import com.example.stokapp.employee.domain.EmployeeService;
+import com.example.stokapp.employee.infrastructure.EmployeeRepository;
 import com.example.stokapp.owner.domain.Owner;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
-import com.example.stokapp.product.domain.Category;
-import com.example.stokapp.product.domain.Product;
-import com.example.stokapp.product.infrastructure.ProductRepository;
-import com.example.stokapp.supplier.domain.Supplier;
-import com.example.stokapp.supplier.infrastructure.SupplierRepository;
 import com.example.stokapp.utils.Reader;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +17,6 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -41,10 +36,7 @@ public class OwnerControllerTest {
     private OwnerRepository ownerRepository;
 
     String token = "";
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private SupplierRepository supplierRepository;
+
 
     @BeforeEach
     public void setUp() throws Exception {
