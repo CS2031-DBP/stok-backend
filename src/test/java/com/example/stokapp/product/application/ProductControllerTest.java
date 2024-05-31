@@ -119,10 +119,10 @@ public class ProductControllerTest {
 
         mockMvc.perform(put("/product/update/1")
                         .contentType("application/json")
-                        .content("{\"name\": \"Updated Product Name\", \"description\": \"Updated Product Description\", \"price\": 199.99, \"category\": \"Fritura\", \"qr\": \"QR54321\"}"))
+                        .content("{\"id\": 1, \"name\": \"Updated Product Name\", \"description\": \"Updated Product Description\", \"price\": 199.99, \"category\": \"Fritura\", \"qr\": \"QR54321\"}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Product updated"));
 
-        verify(productService, times(1)).updateProduct(anyLong(), any(Product.class));
+        verify(productService, times(1)).updateProduct(1L, updatedProduct);
     }
 }

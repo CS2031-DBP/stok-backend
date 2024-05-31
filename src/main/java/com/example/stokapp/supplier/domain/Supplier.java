@@ -33,7 +33,8 @@ public class Supplier {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "owner_id")
     private Owner owner;
 
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = true)

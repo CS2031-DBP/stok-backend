@@ -34,6 +34,6 @@ public class Sale {
     private Inventory inventory;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", nullable = false)
     private Owner owner;
 }

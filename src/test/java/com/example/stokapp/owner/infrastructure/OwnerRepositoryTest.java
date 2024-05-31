@@ -55,5 +55,4 @@ public class OwnerRepositoryTest {
         assertThat(found.getPassword()).isEqualTo(owner.getPassword());
         assertThat(found.getRole()).isEqualTo(owner.getRole());
     }
-
 }

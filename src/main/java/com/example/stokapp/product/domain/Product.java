@@ -34,6 +34,7 @@ public class Product {
     private String qr;
 
     @ManyToOne
+    @JoinColumn(name = "supplier_id")
     @Nullable
     private Supplier supplier;
 

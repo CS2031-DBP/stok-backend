@@ -46,7 +46,7 @@ public class OwnerController {
     @PreAuthorize("hasRole('ROLE_OWNER')")
     @PostMapping("/sendmail")
     public ResponseEntity<String> sendEmail(@RequestBody OwnerEmailRequest ownerEmailRequest) {
-        ownerService.sendEmail(ownerEmailRequest.getOwnerId(),ownerEmailRequest.getProductId());
+        ownerService.sendEmail(ownerEmailRequest.getOwnerId(), ownerEmailRequest.getProductId());
         return ResponseEntity.ok("Email sent");
     }
 }

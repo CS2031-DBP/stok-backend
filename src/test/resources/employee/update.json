@@ -1,8 +1,7 @@
 {
-  "id": 1,
-  "name": "Doritoss",
-  "description": "Con queso",
-  "price": 2.8,
-  "category": "Fritura",
-  "qr": "q123"
+  "firstName": "Joel",
+  "lastName": "Miguel",
+  "email": "joel.miguel@utec.edu.pe",
+  "password": "1234",
+  "phoneNumber": "111111111"
 }
