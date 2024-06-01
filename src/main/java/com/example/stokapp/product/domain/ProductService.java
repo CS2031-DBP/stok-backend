@@ -1,13 +1,19 @@
 package com.example.stokapp.product.domain;
 
+import com.example.stokapp.auth.AuthImpl;
+import com.example.stokapp.configuration.DtoConfig;
 import com.example.stokapp.exceptions.NotFound;
+import com.example.stokapp.exceptions.UnauthorizeOperationException;
 import com.example.stokapp.product.infrastructure.ProductRepository;
+import com.example.stokapp.supplier.domain.SupplierWithNoProductDto;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.ProviderNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -15,11 +21,28 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    //ADD PRODUCT
-    public void addProduct(Product product) { productRepository.save(product); }
+    @Autowired
+    ModelMapper mapper;
+    @Autowired
+    private AuthImpl authImpl;
+
+    // ADD PRODUCT
+    public ProductDto addProduct(Product product) {
+        String username = authImpl.getCurrentEmail();
+        if (username == null) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+        Product savedProduct = productRepository.save(product);
+        return mapper.map(savedProduct, ProductDto.class);
+    }
 
     //DELETE PRODUCT
     public void deleteProduct(Long productId) {
+        String username = authImpl.getCurrentEmail();
+        if(username == null) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFound("Product not found"));
         productRepository.delete(product);
@@ -27,6 +50,11 @@ public class ProductService {
 
     //UPDATE PRODUCT
     public void updateProduct(Long productId, Product updatedProduct) {
+        String username = authImpl.getCurrentEmail();
+        if(username == null) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
@@ -38,21 +66,28 @@ public class ProductService {
         productRepository.save(existingProduct);
     }
 
-    //BUSCAR PRODUCTO POR nombre
-    public Product getProductByName(String nombre) {
-        Product products = productRepository.findByName(nombre)
-                .orElseThrow(() -> new NotFound("Product not found"));
-        return products;
-    }
-
-
     // BUSCAR TODOS LOS PRODUCTOS
-    public List<Product> getAllProducts() {
+    public List<ProductWithSupplierDto> getAllProducts() {
+        String username = authImpl.getCurrentEmail();
+        if (username == null) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+
         List<Product> products = productRepository.findAll();
-        if(products.isEmpty()){
+        if (products.isEmpty()) {
             throw new RuntimeException("No products found.");
         }
-        return products;
+
+        return products.stream()
+                .map(product -> {
+                    ProductWithSupplierDto productDto = mapper.map(product, ProductWithSupplierDto.class);
+                    if (product.getSupplier() != null) {
+                        SupplierWithNoProductDto supplierDto = mapper.map(product.getSupplier(), SupplierWithNoProductDto.class);
+                        productDto.setSupplier(supplierDto);
+                    }
+                    return productDto;
+                })
+                .collect(Collectors.toList());
     }
 
 }
