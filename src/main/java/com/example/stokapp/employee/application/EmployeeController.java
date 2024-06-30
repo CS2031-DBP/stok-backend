@@ -24,7 +24,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<EmployeeInfoDto> getDriver() {
+    public ResponseEntity<EmployeeResponseDto> getDriver() {
         return ResponseEntity.ok(employeeService.getEmployeeOwnInfo());
     }
 
@@ -40,6 +40,13 @@ public class EmployeeController {
     public ResponseEntity<Void> deleteEmployeeFromOwner(@PathVariable Long ownerId, @PathVariable Long employeeId) {
         employeeService.deleteEmployeeFromOwner(ownerId, employeeId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+    @DeleteMapping("/delete/{employeeId}")
+    public ResponseEntity<String> deleteOwner(@PathVariable Long employeeId) {
+        employeeService.deleteEmployee(employeeId);
+        return ResponseEntity.ok("Employee deleted");
     }
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")

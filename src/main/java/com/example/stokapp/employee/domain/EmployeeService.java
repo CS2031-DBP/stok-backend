@@ -44,12 +44,12 @@ public class EmployeeService {
         return employeeResponseDto;
     }
 
-    public EmployeeInfoDto getEmployeeOwnInfo() {
+    public EmployeeResponseDto getEmployeeOwnInfo() {
         String username = authImpl.getCurrentEmail();
         if(username == null) throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
 
         Employee employee = employeeRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Employee not found"));
-        return mapper.map(employee, EmployeeInfoDto.class);
+        return mapper.map(employee, EmployeeResponseDto.class);
     }
 
     @Transactional
@@ -107,5 +107,14 @@ public class EmployeeService {
         if (!isOwner && !isEmployee) {
             throw new UnauthorizeOperationException("Not allowed");
         }
+    }
+
+    public void deleteEmployee(Long employeeId) {
+        if (!authImpl.isOwnerResource(employeeId))
+            throw new UnauthorizeOperationException("Not allowed");
+
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+        employeeRepository.delete(employee);
     }
 }
