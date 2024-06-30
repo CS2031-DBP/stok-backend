@@ -1,9 +1,9 @@
-package com.example.stokapp.employee.domain;
+package com.example.stokapp.owner.domain;
 
 import lombok.Data;
 
 @Data
-public class UpdateEmployeeRequest {
+public class UpdateOwnerInfo {
 
     private String firstName;
 

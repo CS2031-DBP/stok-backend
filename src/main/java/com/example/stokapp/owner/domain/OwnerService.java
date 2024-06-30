@@ -41,18 +41,16 @@ public class OwnerService {
     }
 
     // UPDATE OWNER
-    public void updateOwner(Long ownerId, OwnerInfo ownerInfo) {
+    public void updateOwner(Long ownerId, UpdateOwnerInfo updateOwnerInfo) {
         if (!authImpl.isOwnerResource(ownerId))
             throw new UnauthorizeOperationException("Not allowed");
 
         Owner existingOwner = ownerRepository.findById(ownerId)
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
 
-        existingOwner.setFirstName(ownerInfo.getFirstName());
-        existingOwner.setLastName(ownerInfo.getLastName());
-        existingOwner.setEmail(ownerInfo.getEmail());
-        existingOwner.setPhoneNumber(ownerInfo.getPhoneNumber());
-        existingOwner.setRole(ownerInfo.getRole());
+        existingOwner.setFirstName(updateOwnerInfo.getFirstName());
+        existingOwner.setLastName(updateOwnerInfo.getLastName());
+        existingOwner.setPhoneNumber(updateOwnerInfo.getPhoneNumber());
 
         ownerRepository.save(existingOwner);
     }
