@@ -52,6 +52,17 @@ public class InventoryService {
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
 
         boolean isOwner = authImpl.isOwnerResource(ownerId);
+
+        // Si el owner no tiene empleados, solo verificar si es el owner y no lanzar excepción
+        if (owner.getEmployees().isEmpty()) {
+            if (isOwner) {
+                return;
+            } else {
+                throw new UnauthorizeOperationException("Not allowed");
+            }
+        }
+
+        // Verificar si es empleado solo si hay empleados
         boolean isEmployee = owner.getEmployees().stream()
                 .anyMatch(employee -> employee.getEmail().equals(currentEmail));
 

@@ -1,13 +1,18 @@
 package com.example.stokapp.event;
 
 import com.example.stokapp.configuration.EmailService;
+import com.example.stokapp.configuration.PdfGenerator;
 import com.example.stokapp.inventory.domain.Inventory;
 import com.example.stokapp.inventory.infrastructure.InventoryRepository;
 
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
 
 @Component
 public class SendLowStockEmailListener {
@@ -15,12 +20,29 @@ public class SendLowStockEmailListener {
     private EmailService emailService;
 
     @Autowired
-    InventoryRepository inventoryRepository;
+    private InventoryRepository inventoryRepository;
 
     @EventListener
     @Async
     public void sendLowStockEmailEvent(SendLowStockEmailEvent sendLowStockEmailEvent) {
         Inventory inventory = inventoryRepository.findById(sendLowStockEmailEvent.getInventory().getId()).orElse(null);
-        emailService.sendEmail(sendLowStockEmailEvent.getEmail(), "ALERTA PRODUCTO BAJO EN STOCK", "El siguiente producto presenta un nivel bajo de stock: " + inventory.getProduct().getName() + " " + "\n Cantidad de stock disponible: " + inventory.getStock());
+        if (inventory == null) {
+            throw new RuntimeException("Inventory not found");
+        }
+
+        String email = sendLowStockEmailEvent.getEmail();
+        String subject = "ALERTA PRODUCTO BAJO EN STOCK";
+        String text = "El siguiente producto presenta un nivel bajo de stock: " + inventory.getProduct().getName() +
+                "\nCantidad de stock disponible: " + inventory.getStock();
+
+        try {
+            // Generar el archivo PDF
+            File pdfFile = PdfGenerator.generatePdfLowStock("LowStock", email, inventory);
+
+            // Enviar el email con el PDF adjunto
+            emailService.sendEmailWithAttachment(email, subject, text, pdfFile);
+        } catch (IOException | MessagingException e) {
+            e.printStackTrace();
+        }
     }
 }

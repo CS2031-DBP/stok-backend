@@ -1,8 +1,10 @@
 package com.example.stokapp.product.domain;
 
+import com.example.stokapp.inventory.domain.Inventory;
 import com.example.stokapp.qr.domain.QR;
 import com.example.stokapp.supplier.domain.Supplier;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.annotation.Nullable;
@@ -37,5 +39,9 @@ public class Product {
     @JoinColumn(name = "supplier_id")
     @Nullable
     private Supplier supplier;
+
+    @OneToOne(mappedBy = "product")
+    @JsonIgnore // o @JsonManagedReference (dependiendo de tu caso)
+    private Inventory inventory;
 
 }
