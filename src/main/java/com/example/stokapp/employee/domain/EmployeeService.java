@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -41,6 +42,14 @@ public class EmployeeService {
         }
 
         return employeeResponseDto;
+    }
+
+    public EmployeeInfoDto getEmployeeOwnInfo() {
+        String username = authImpl.getCurrentEmail();
+        if(username == null) throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+
+        Employee employee = employeeRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Employee not found"));
+        return mapper.map(employee, EmployeeInfoDto.class);
     }
 
     @Transactional

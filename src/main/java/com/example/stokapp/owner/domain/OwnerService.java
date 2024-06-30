@@ -13,6 +13,7 @@ import com.example.stokapp.supplier.domain.Supplier;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -65,6 +66,13 @@ public class OwnerService {
         return mapper.map(owner, OwnerResponseDto.class);
     }
 
+    public OwnerResponseDto getOwnerOwnInfo() {
+        String username = authImpl.getCurrentEmail();
+        if(username == null) throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+
+        Owner owner = ownerRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Owner not found"));
+        return getOwnerById(owner.getId());
+    }
 
     public void sendEmail(Long ownerId, Long productId) {
         if (!authImpl.isOwnerResource(ownerId))

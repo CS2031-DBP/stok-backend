@@ -1,9 +1,7 @@
 package com.example.stokapp.employee.application;
 
-import com.example.stokapp.employee.domain.Employee;
-import com.example.stokapp.employee.domain.EmployeeResponseDto;
-import com.example.stokapp.employee.domain.EmployeeService;
-import com.example.stokapp.employee.domain.UpdateEmployeeRequest;
+import com.example.stokapp.employee.domain.*;
+import com.example.stokapp.owner.domain.OwnerResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +21,11 @@ public class EmployeeController {
     @GetMapping("/{ownerId}/{employeeId}")
     public ResponseEntity<EmployeeResponseDto> getEmployee(@PathVariable Long ownerId, @PathVariable Long employeeId) {
         return ResponseEntity.ok(employeeService.getEmployee(ownerId, employeeId));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<EmployeeInfoDto> getDriver() {
+        return ResponseEntity.ok(employeeService.getEmployeeOwnInfo());
     }
 
     @PreAuthorize("hasRole('ROLE_OWNER')")

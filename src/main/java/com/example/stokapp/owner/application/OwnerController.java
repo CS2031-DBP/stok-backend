@@ -26,6 +26,11 @@ public class OwnerController {
         return ResponseEntity.ok(ownerService.getOwnerById(id));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<OwnerResponseDto> getDriver() {
+        return ResponseEntity.ok(ownerService.getOwnerOwnInfo());
+    }
+
     // ELIMINAR PROPIETARIO
     @PreAuthorize("hasRole('ROLE_OWNER')")
     @DeleteMapping("/delete/{ownerId}")
