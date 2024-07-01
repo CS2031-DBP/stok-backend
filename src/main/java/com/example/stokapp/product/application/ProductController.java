@@ -1,5 +1,6 @@
 package com.example.stokapp.product.application;
 
+import com.example.stokapp.owner.domain.OwnerResponseDto;
 import com.example.stokapp.product.domain.Product;
 import com.example.stokapp.product.domain.ProductDto;
 import com.example.stokapp.product.domain.ProductService;
@@ -26,6 +27,12 @@ public class ProductController {
     public ResponseEntity<List<ProductWithSupplierDto>> findAllProducts() {
         List<ProductWithSupplierDto> productList = productService.getAllProducts();
         return ResponseEntity.ok(productList);
+    }
+
+    @PreAuthorize("hasRole('ROLE_OWNER')")
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductWithSupplierDto> findProductById(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getProductById(id));
     }
 
     // ADD PRODUCT

@@ -30,12 +30,12 @@ public class Product {
     @Column(name = "category", nullable = false)
     private Category category;
 
-    @Column(name = "qr", nullable = false)
+    @Column(name = "qr", nullable = true)
+    @Nullable
     private String qr;
 
     @ManyToOne
     @JoinColumn(name = "supplier_id")
     @Nullable
     private Supplier supplier;
-
 }

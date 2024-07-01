@@ -90,4 +90,13 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    public ProductWithSupplierDto getProductById(Long id) {
+        String username = authImpl.getCurrentEmail();
+        if (username == null) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+
+        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        return mapper.map(product, ProductWithSupplierDto.class);
+    }
 }

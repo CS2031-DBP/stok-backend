@@ -1,6 +1,7 @@
 package com.example.stokapp.product.domain;
 
 import com.example.stokapp.inventory.domain.Inventory;
+import jakarta.annotation.Nullable;
 import lombok.Data;
 import java.time.ZonedDateTime;
 
@@ -17,5 +18,6 @@ public class ProductDto {
 
     private Category category;
 
+    @Nullable
     private String qr;
 }

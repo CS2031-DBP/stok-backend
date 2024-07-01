@@ -24,7 +24,7 @@ public class OwnerController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<OwnerResponseDto> getDriver() {
+    public ResponseEntity<OwnerResponseDto> getOwner() {
         return ResponseEntity.ok(ownerService.getOwnerOwnInfo());
     }
 
