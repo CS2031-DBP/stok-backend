@@ -13,6 +13,10 @@ import com.example.stokapp.product.infrastructure.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -151,5 +155,14 @@ public class InventoryService {
         inventoryDto.setProduct(productDto);
 
         return inventoryDto;
+    }
+
+    public Page<InventoryDto> getInventoryPage(Long ownerId, int page, int size) {
+        verifyOwnerOrEmployee(ownerId);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Inventory> inventories = inventoryRepository.findAllByOwnerId(ownerId, pageable);
+
+        return inventories.map(inventory -> mapper.map(inventory, InventoryDto.class));
     }
 }

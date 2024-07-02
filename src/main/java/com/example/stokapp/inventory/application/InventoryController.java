@@ -5,6 +5,7 @@ import com.example.stokapp.inventory.domain.Inventory;
 import com.example.stokapp.inventory.domain.InventoryDto;
 import com.example.stokapp.inventory.domain.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +25,12 @@ public class InventoryController {
     @GetMapping("/owner/{ownerId}")
     public ResponseEntity<List<InventoryDto>> getAll(@PathVariable Long ownerId) {
         return ResponseEntity.ok(inventoryService.findAll(ownerId));
+    }
+
+    @GetMapping("/all/{ownerId}")
+    public ResponseEntity<Page<InventoryDto>> getRideByUser(@PathVariable Long ownerId, @RequestParam int page, @RequestParam int size) {
+        Page<InventoryDto> response = inventoryService.getInventoryPage(ownerId, page, size);
+        return ResponseEntity.ok(response);
     }
 
     // CREAR INVENTARIO
