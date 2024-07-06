@@ -75,10 +75,10 @@ public class InventoryService {
         inventory.setStock(quantity);
         inventory.setOwner(owner);
 
+
         owner.getInventory().add(inventory);
 
         ownerRepository.save(owner);
-        inventoryRepository.save(inventory);
     }
 
     public void reduceInventory(Long ownerId, Long inventoryId, Integer quantity) {
