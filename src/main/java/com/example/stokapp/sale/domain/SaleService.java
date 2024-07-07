@@ -175,8 +175,9 @@ public class SaleService {
                 .collect(Collectors.toList());
     }
 
+
     // PAGINACION
-    public Page<SaleDto> getSalsePage(Long ownerId, int page, int size) {
+    public Page<SaleDto> getSalesPage(Long ownerId, int page, int size) {
         verifyOwnerOrEmployee(ownerId);
 
         Pageable pageable = PageRequest.of(page, size);

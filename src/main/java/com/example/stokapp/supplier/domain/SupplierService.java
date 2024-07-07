@@ -12,6 +12,9 @@ import com.example.stokapp.product.infrastructure.ProductRepository;
 import com.example.stokapp.supplier.infrastructure.SupplierRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -156,5 +159,27 @@ public class SupplierService {
                     return supplierDto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public Page<SupplierDto> getSuppliersPage(Long ownerId, int page, int size) {
+        if (!authImpl.isOwnerResource(ownerId)) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Supplier> suppliers = supplierRepository.findAllByOwnerId(ownerId, pageable);
+
+        return suppliers.map(supplier -> {
+            SupplierDto supplierDto = mapper.map(supplier, SupplierDto.class);
+            OwnerResponseDto ownerDto = mapper.map(supplier.getOwner(), OwnerResponseDto.class);
+            supplierDto.setOwnerResponseDto(ownerDto);
+
+            List<ProductDto> productDtos = supplier.getProducts().stream()
+                    .map(product -> mapper.map(product, ProductDto.class))
+                    .collect(Collectors.toList());
+            supplierDto.setProducts(productDtos);
+
+            return supplierDto;
+        });
     }
 }

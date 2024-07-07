@@ -1,7 +1,9 @@
 package com.example.stokapp.supplier.application;
 
+import com.example.stokapp.sale.domain.SaleDto;
 import com.example.stokapp.supplier.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +37,13 @@ public class SupplierController {
     public ResponseEntity<List<SupplierDto>> getAllSuppliers(@PathVariable Long ownerId) {
         List<SupplierDto> suppliers = supplierService.findAllSuppliers(ownerId);
         return ResponseEntity.ok(suppliers);
+    }
+
+    // GET CON PAGINACION
+    @GetMapping("/allpage/{ownerId}")
+    public ResponseEntity<Page<SupplierDto>> getSuppliersByUser(@PathVariable Long ownerId, @RequestParam int page, @RequestParam int size) {
+        Page<SupplierDto> response = supplierService.getSuppliersPage(ownerId, page, size);
+        return ResponseEntity.ok(response);
     }
 
     // Endpoint para actualizar un proveedor

@@ -49,7 +49,7 @@ public class SaleController {
 
     @GetMapping("/all/{ownerId}")
     public ResponseEntity<Page<SaleDto>> getSalesByUser(@PathVariable Long ownerId, @RequestParam int page, @RequestParam int size) {
-        Page<SaleDto> response = saleService.getSalsePage(ownerId, page, size);
+        Page<SaleDto> response = saleService.getSalesPage(ownerId, page, size);
         return ResponseEntity.ok(response);
     }
 
