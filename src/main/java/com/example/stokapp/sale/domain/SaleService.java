@@ -14,6 +14,9 @@ import com.example.stokapp.product.infrastructure.ProductRepository;
 import com.example.stokapp.sale.infrastructure.SaleRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -170,6 +173,21 @@ public class SaleService {
                     return saleDto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    // PAGINACION
+    public Page<SaleDto> getSalsePage(Long ownerId, int page, int size) {
+        verifyOwnerOrEmployee(ownerId);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Sale> sales = saleRepository.findAllByOwnerId(ownerId, pageable);
+
+        return sales.map(sale -> {
+            SaleDto saleDto = mapper.map(sale, SaleDto.class);
+            InventoryforSaleDto inventoryDto = mapper.map(sale.getInventory(), InventoryforSaleDto.class);
+            saleDto.setInventoryforSaleDto(inventoryDto);
+            return saleDto;
+        });
     }
 
     public SaleDto getSale(Long ownerId, Long saleId) {
