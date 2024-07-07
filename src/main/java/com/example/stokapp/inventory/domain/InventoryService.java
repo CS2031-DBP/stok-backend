@@ -116,10 +116,10 @@ public class InventoryService {
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
         Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
-        owner.getInventory().remove(inventory);
+        owner.getInventory().removeIf(inv -> inv.getId().equals(inventoryId));
 
-        ownerRepository.save(owner);
         inventoryRepository.delete(inventory);
+        ownerRepository.save(owner);
     }
 
     public List<InventoryDto> findAll(Long ownerId) {

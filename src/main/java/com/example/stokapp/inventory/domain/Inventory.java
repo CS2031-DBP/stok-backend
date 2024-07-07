@@ -25,7 +25,7 @@ public class Inventory {
     @Column(name = "stock", nullable = false)
     private Integer stock;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
     private Owner owner;
-
 }

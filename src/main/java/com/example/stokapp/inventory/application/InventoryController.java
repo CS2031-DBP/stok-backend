@@ -28,7 +28,7 @@ public class InventoryController {
     }
 
     @GetMapping("/all/{ownerId}")
-    public ResponseEntity<Page<InventoryDto>> getRideByUser(@PathVariable Long ownerId, @RequestParam int page, @RequestParam int size) {
+    public ResponseEntity<Page<InventoryDto>> getInventoriesByUser(@PathVariable Long ownerId, @RequestParam int page, @RequestParam int size) {
         Page<InventoryDto> response = inventoryService.getInventoryPage(ownerId, page, size);
         return ResponseEntity.ok(response);
     }

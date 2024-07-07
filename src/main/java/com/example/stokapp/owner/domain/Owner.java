@@ -27,7 +27,7 @@ public class Owner extends User {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Sale> sales = new ArrayList<>();
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Inventory> inventory = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
