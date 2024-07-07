@@ -93,11 +93,10 @@ public class SaleService {
 
         Owner owner = ownerRepository.findById(request.getOwnerId())
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
-        owner.getSales().add(sale);
         sale.setOwner(owner);
 
+        owner.getSales().add(sale);
         ownerRepository.save(owner);
-        saleRepository.save(sale);
 
         SaleDto saleDto = mapper.map(sale, SaleDto.class);
         InventoryforSaleDto inventoryDto = mapper.map(inventory, InventoryforSaleDto.class);
