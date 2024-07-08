@@ -85,10 +85,7 @@ public class SupplierService {
     }
 
     // UPDATE SUPPLIER
-    public void updateSupplier(UpdateSupplierRequest updateRequest) {
-        Long ownerId = updateRequest.getOwnerId();
-        Long supplierId = updateRequest.getSupplierId();
-
+    public void updateSupplier(Long ownerId, Long supplierId, UpdateSupplierRequest updateRequest) {
         if (!authImpl.isOwnerResource(ownerId)) {
             throw new UnauthorizeOperationException("Not allowed");
         }
@@ -181,5 +178,29 @@ public class SupplierService {
 
             return supplierDto;
         });
+    }
+
+    public SupplierDto getSupplierInfo(Long ownerId, Long supplierId) {
+        if (!authImpl.isOwnerResource(ownerId)) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+
+        Supplier supplier = supplierRepository.findById(supplierId)
+                .orElseThrow(() -> new RuntimeException("Supplier not found"));
+
+        if (!supplier.getOwner().getId().equals(ownerId)) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+
+        SupplierDto supplierDto = mapper.map(supplier, SupplierDto.class);
+        OwnerResponseDto ownerDto = mapper.map(supplier.getOwner(), OwnerResponseDto.class);
+        supplierDto.setOwnerResponseDto(ownerDto);
+
+        List<ProductDto> productDtos = supplier.getProducts().stream()
+                .map(product -> mapper.map(product, ProductDto.class))
+                .collect(Collectors.toList());
+        supplierDto.setProducts(productDtos);
+
+        return supplierDto;
     }
 }

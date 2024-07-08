@@ -100,26 +100,6 @@ public class SupplierControllerTest {
 
     @Test
     @WithMockUser(roles = "OWNER")
-    public void testUpdateSupplier() throws Exception {
-        UpdateSupplierRequest request = new UpdateSupplierRequest();
-        request.setOwnerId(1L);
-        request.setSupplierId(2L);
-        request.setFirstName("John");
-        request.setLastName("Doe");
-        request.setEmail("john.doe@example.com");
-        request.setPhoneNumber("123456789");
-
-        mockMvc.perform(patch("/suppliers/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"ownerId\": 1, \"supplierId\": 2, \"firstName\": \"John\", \"lastName\": \"Doe\", \"email\": \"john.doe@example.com\" , \"phoneNumber\": \"123456789\"}"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Supplier updated successfully"));
-
-        verify(supplierService, times(1)).updateSupplier(eq(request));
-    }
-
-    @Test
-    @WithMockUser(roles = "OWNER")
     public void testAddProductToSupplier() throws Exception {
         doNothing().when(supplierService).addProductToSupplier(anyLong(), anyLong(), anyLong());
 

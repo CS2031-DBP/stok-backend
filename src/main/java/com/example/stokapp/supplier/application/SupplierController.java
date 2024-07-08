@@ -47,10 +47,12 @@ public class SupplierController {
     }
 
     // Endpoint para actualizar un proveedor
-    @PreAuthorize("hasRole('ROLE_OWNER')")
-    @PatchMapping("/update")
-    public ResponseEntity<String> updateSupplier(@RequestBody UpdateSupplierRequest updateRequest) {
-        supplierService.updateSupplier(updateRequest);
+    @PatchMapping("/update/{ownerId}/{supplierId}")
+    public ResponseEntity<String> updateSupplier(
+            @PathVariable Long ownerId,
+            @PathVariable Long supplierId,
+            @RequestBody UpdateSupplierRequest updateRequest) {
+        supplierService.updateSupplier(ownerId, supplierId, updateRequest);
         return ResponseEntity.ok("Supplier updated successfully");
     }
 
@@ -76,5 +78,13 @@ public class SupplierController {
     public ResponseEntity<String> deleteSupplier(@PathVariable Long supplierId, @PathVariable Long ownerId) {
         supplierService.deleteSupplier(ownerId, supplierId);
         return ResponseEntity.ok("Supplier deleted successfully");
+    }
+
+    // Endpoint para obtener la información de un proveedor específico
+    @PreAuthorize("hasRole('ROLE_OWNER')")
+    @GetMapping("/{ownerId}/{supplierId}")
+    public ResponseEntity<SupplierDto> getSupplierInfo(@PathVariable Long ownerId, @PathVariable Long supplierId) {
+        SupplierDto supplier = supplierService.getSupplierInfo(ownerId, supplierId);
+        return ResponseEntity.ok(supplier);
     }
 }
