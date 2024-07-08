@@ -165,4 +165,13 @@ public class InventoryService {
 
         return inventories.map(inventory -> mapper.map(inventory, InventoryDto.class));
     }
+
+
+    public InventoryDto getInventoryById(Long ownerId, Long inventoryId) {
+        verifyOwnerOrEmployee(ownerId);
+
+        Inventory inventory = inventoryRepository.findById(inventoryId).orElseThrow(() -> new RuntimeException("Inventory not found"));
+
+        return mapper.map(inventory, InventoryDto.class);
+    }
 }

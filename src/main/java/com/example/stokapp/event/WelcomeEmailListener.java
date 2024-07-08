@@ -15,6 +15,6 @@ public class WelcomeEmailListener {
     @EventListener
     @Async
     public void sendWelcomeEmail(WelcomeEmailEvent welcomeEmailEvent) {
-        emailService.sendEmail(welcomeEmailEvent.getEmail(), "Bienvenido", "Hola " + welcomeEmailEvent.getName() + ", bienvenido a nuestra plataforma.");
+        emailService.sendEmail(welcomeEmailEvent.getEmail(), "Bienvenido", "Hola " + welcomeEmailEvent.getName() + ", bienvenido a nuestra plataforma. EN CASO SEAS UN TRABAJADOR, DALE TU ID A TU JEFE, EN CASO SEAS UN JEFE NO COMPARTAS TU ID. Este es tu ID: " + welcomeEmailEvent.getId().toString());
     }
 }

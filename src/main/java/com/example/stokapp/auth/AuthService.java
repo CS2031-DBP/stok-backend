@@ -75,7 +75,7 @@ public class AuthService {
             response.setToken(jwtService.generateToken(owner));
             response.setId(owner.getId());
             response.setRole(owner.getRole());
-            applicationEventPublisher.publishEvent(new WelcomeEmailEvent(this, owner.getEmail(), owner.getFirstName()));
+            applicationEventPublisher.publishEvent(new WelcomeEmailEvent(this, owner.getEmail(), owner.getFirstName(), owner.getId()));
             return response;
         }
         else {
@@ -94,7 +94,7 @@ public class AuthService {
             response.setToken(jwtService.generateToken(employee));
             response.setId(employee.getId());
             response.setRole(employee.getRole());
-            applicationEventPublisher.publishEvent(new WelcomeEmailEvent(this, employee.getEmail(), employee.getFirstName()));
+            applicationEventPublisher.publishEvent(new WelcomeEmailEvent(this, employee.getEmail(), employee.getFirstName(), employee.getId()));
             return response;
         }
     }
