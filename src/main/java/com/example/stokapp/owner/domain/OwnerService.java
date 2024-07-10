@@ -1,20 +1,28 @@
 package com.example.stokapp.owner.domain;
 
 import com.example.stokapp.auth.AuthImpl;
+import com.example.stokapp.employee.domain.Employee;
+import com.example.stokapp.employee.domain.EmployeeDto;
 import com.example.stokapp.event.SendEmailToSupplierEvent;
 import com.example.stokapp.event.WelcomeEmailEvent;
 import com.example.stokapp.exceptions.UnauthorizeOperationException;
 import com.example.stokapp.inventory.domain.Inventory;
+import com.example.stokapp.inventory.domain.InventoryDto;
 import com.example.stokapp.owner.infrastructure.OwnerRepository;
 import com.example.stokapp.product.domain.Product;
+import com.example.stokapp.product.domain.ProductDto;
 import com.example.stokapp.product.infrastructure.ProductRepository;
 import com.example.stokapp.sale.domain.Sale;
 import com.example.stokapp.supplier.domain.Supplier;
+import org.aspectj.bridge.IMessage;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OwnerService {
@@ -72,7 +80,7 @@ public class OwnerService {
         return getOwnerById(owner.getId());
     }
 
-    public void sendEmail(Long ownerId, Long productId) {
+    public void sendEmail(Long ownerId, Long productId , String message) {
         if (!authImpl.isOwnerResource(ownerId))
             throw new UnauthorizeOperationException("Not allowed");
 
@@ -83,6 +91,23 @@ public class OwnerService {
             throw new RuntimeException("Producto no tiene un supplier asignado");
         }
 
-        applicationEventPublisher.publishEvent(new SendEmailToSupplierEvent(this, product.getSupplier().getEmail(), product));
+        applicationEventPublisher.publishEvent(new SendEmailToSupplierEvent(this, product.getSupplier().getEmail(), product,ownerId ,message));
+    }
+
+
+    public List<EmployeeDto> viewAllEmployees(Long ownerId){
+        if (!authImpl.isOwnerResource(ownerId))
+            throw new UnauthorizeOperationException("Not allowed");
+
+        Owner owner = ownerRepository.findById(ownerId)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        List<Employee> employees = owner.getEmployees();
+        return employees.stream()
+                .map(employee -> {
+                    EmployeeDto employeeDto = mapper.map(employee, EmployeeDto.class);
+                    return employeeDto;
+                })
+                .collect(Collectors.toList());
     }
 }

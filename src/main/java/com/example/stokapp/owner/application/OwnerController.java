@@ -1,12 +1,13 @@
 package com.example.stokapp.owner.application;
 
+import com.example.stokapp.employee.domain.EmployeeDto;
 import com.example.stokapp.owner.domain.*;
-import com.example.stokapp.owner.infrastructure.OwnerRepository;
-import com.example.stokapp.supplier.infrastructure.SupplierRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/owner")
@@ -21,6 +22,13 @@ public class OwnerController {
     @GetMapping("/{id}")
     public ResponseEntity<OwnerResponseDto> findOwner(@PathVariable Long id) {
         return ResponseEntity.ok(ownerService.getOwnerById(id));
+    }
+
+    // GET ALL EMPLOYEES
+    @PreAuthorize("hasRole('ROLE_OWNER')")
+    @GetMapping("/viewAllEmployees/{ownerId}")
+    public ResponseEntity<List<EmployeeDto>> viewAllEmployees(@PathVariable Long ownerId) {
+        return ResponseEntity.ok(ownerService.viewAllEmployees(ownerId));
     }
 
     @GetMapping("/me")
@@ -48,7 +56,7 @@ public class OwnerController {
     @PreAuthorize("hasRole('ROLE_OWNER')")
     @PostMapping("/sendmail")
     public ResponseEntity<String> sendEmail(@RequestBody OwnerEmailRequest ownerEmailRequest) {
-        ownerService.sendEmail(ownerEmailRequest.getOwnerId(), ownerEmailRequest.getProductId());
+        ownerService.sendEmail(ownerEmailRequest.getOwnerId(), ownerEmailRequest.getProductId(), ownerEmailRequest.getMessage());
         return ResponseEntity.ok("Email sent");
     }
 }

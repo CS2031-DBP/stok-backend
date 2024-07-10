@@ -6,4 +6,5 @@ import lombok.Data;
 public class OwnerEmailRequest {
     private Long ownerId;
     private Long productId;
+    private String message;
 }

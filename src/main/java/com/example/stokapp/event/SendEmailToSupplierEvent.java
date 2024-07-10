@@ -7,11 +7,15 @@ import org.springframework.context.ApplicationEvent;
 public class SendEmailToSupplierEvent extends ApplicationEvent {
     private String email;
     private Product product;
+    private Long ownerId;
+    private String message;
 
-    public SendEmailToSupplierEvent(Object source, String email, Product product) {
+    public SendEmailToSupplierEvent(Object source, String email, Product product, Long ownerId, String message) {
         super(source);
         this.email = email;
         this.product = product;
+        this.ownerId = ownerId;
+        this.message = message;
     }
 
     public String getEmail() {
@@ -21,4 +25,8 @@ public class SendEmailToSupplierEvent extends ApplicationEvent {
     public Product getProduct() {
         return product;
     }
+
+    public Long getOwnerId(){return ownerId;}
+
+    public String getMessage() {return message;}
 }

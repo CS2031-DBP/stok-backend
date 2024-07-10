@@ -37,9 +37,9 @@ public class EmployeeController {
 
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')")
     @PostMapping("/delete/{ownerId}/{employeeId}")
-    public ResponseEntity<Void> deleteEmployeeFromOwner(@PathVariable Long ownerId, @PathVariable Long employeeId) {
+    public ResponseEntity<String> deleteEmployeeFromOwner(@PathVariable Long ownerId, @PathVariable Long employeeId) {
         employeeService.deleteEmployeeFromOwner(ownerId, employeeId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Employee deleted from Owner");
     }
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
