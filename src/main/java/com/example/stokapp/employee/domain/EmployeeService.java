@@ -72,9 +72,10 @@ public class EmployeeService {
         Owner owner = ownerRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Owner not found"));
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"));
         owner.getEmployees().remove(employee);
+        employee.setOwner(null);
 
         ownerRepository.save(owner);
-        employeeRepository.delete(employee);
+        employeeRepository.save(employee);
     }
 
     public void updateEmployee(Long employeeId, UpdateEmployeeRequest updateEmployeeRequest) {
