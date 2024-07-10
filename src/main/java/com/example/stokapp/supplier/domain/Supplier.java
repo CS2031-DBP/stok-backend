@@ -33,7 +33,7 @@ public class Supplier {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "owner_id")
     private Owner owner;
 
