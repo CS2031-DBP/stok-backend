@@ -37,6 +37,6 @@ public class Supplier {
     @JoinColumn(name = "owner_id")
     private Owner owner;
 
-    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "supplier")
     private List<Product> products;
 }
