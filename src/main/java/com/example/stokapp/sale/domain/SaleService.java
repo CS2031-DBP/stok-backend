@@ -210,4 +210,21 @@ public class SaleService {
 
         return saleDto;
     }
+
+
+    public List<Sale> findByOwnerIdAndMonth(Long ownerId, int month, int year) {
+        ZonedDateTime startDate = ZonedDateTime.of(year, month, 1, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+        ZonedDateTime endDate = startDate.plusMonths(1);
+        return saleRepository.findByOwnerIdAndCreatedAtBetween(ownerId, startDate, endDate);
+    }
+
+    public List<Sale> findByOwnerIdAndYear(Long ownerId, int year) {
+        ZonedDateTime startDate = ZonedDateTime.of(year, 1, 1, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+        ZonedDateTime endDate = startDate.plusYears(1);
+        return saleRepository.findByOwnerIdAndCreatedAtBetween(ownerId, startDate, endDate);
+    }
+
+    public List<Sale> findByOwnerId(Long ownerId) {
+        return saleRepository.findByOwnerId(ownerId);
+    }
 }
