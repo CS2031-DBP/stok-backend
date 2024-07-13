@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Month;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,27 +48,31 @@ public class PdfGenerator {
 
         document.add(new Paragraph(title).setBold().setFontSize(20));
 
-        // Crear tabla con ancho del 100%
         Table table = new Table(UnitValue.createPercentArray(new float[]{2, 4, 2, 2, 3}));
         table.setWidth(UnitValue.createPercentValue(100));
 
-        // Encabezados de la tabla
-        table.addHeaderCell(new Cell().add(new Paragraph("Sale ID").setBold()));
-        table.addHeaderCell(new Cell().add(new Paragraph("Product").setBold()));
-        table.addHeaderCell(new Cell().add(new Paragraph("Amount").setBold()));
-        table.addHeaderCell(new Cell().add(new Paragraph("Sale Cant").setBold()));
-        table.addHeaderCell(new Cell().add(new Paragraph("Date").setBold()));
+        table.addHeaderCell(new Cell().add(new Paragraph("SaleID").setBold()));
+        table.addHeaderCell(new Cell().add(new Paragraph("Producto").setBold()));
+        table.addHeaderCell(new Cell().add(new Paragraph("Cantidad Vendida").setBold()));
+        table.addHeaderCell(new Cell().add(new Paragraph("Dinero de la Venta").setBold()));
+        table.addHeaderCell(new Cell().add(new Paragraph("Fecha").setBold()));
 
-        // Agregar filas a la tabla
+        double totalSaleCant = 0;
+
         for (Sale sale : sales) {
             table.addCell(new Cell().add(new Paragraph(String.valueOf(sale.getId()))));
             table.addCell(new Cell().add(new Paragraph(sale.getInventory().getProduct().getName())));
             table.addCell(new Cell().add(new Paragraph(String.valueOf(sale.getAmount()))));
             table.addCell(new Cell().add(new Paragraph(String.valueOf(sale.getSaleCant()))));
             table.addCell(new Cell().add(new Paragraph(sale.getCreatedAt().toString())));
+
+            totalSaleCant += sale.getSaleCant();
         }
 
         document.add(table);
+
+        document.add(new Paragraph("Total de Ganancias " + totalSaleCant).setBold().setFontSize(16));
+
         document.close();
         writer.close();
 
@@ -91,44 +96,77 @@ public class PdfGenerator {
         Map<Month, Long> salesByMonth = sales.stream()
                 .collect(Collectors.groupingBy(sale -> sale.getCreatedAt().getMonth(), Collectors.counting()));
 
-        Table salesTable = new Table(UnitValue.createPercentArray(new float[]{2, 2}));
+        Map<Month, Double> earningsByMonth = sales.stream()
+                .collect(Collectors.groupingBy(sale -> sale.getCreatedAt().getMonth(), Collectors.summingDouble(Sale::getSaleCant)));
+
+        Table salesTable = new Table(UnitValue.createPercentArray(new float[]{2, 2, 2}));
         salesTable.setWidth(UnitValue.createPercentValue(100));
 
         salesTable.addHeaderCell("Month");
         salesTable.addHeaderCell("Sales Count");
+        salesTable.addHeaderCell("Ganancias");
+
+        double totalEarnings = 0;
 
         for (Month month : Month.values()) {
             long salesCount = salesByMonth.getOrDefault(month, 0L);
+            double earnings = earningsByMonth.getOrDefault(month, 0.0);
+            totalEarnings += earnings;
+
             salesTable.addCell(new Paragraph(month.name()));
             salesTable.addCell(new Paragraph(String.valueOf(salesCount)));
+            salesTable.addCell(new Paragraph(String.valueOf(earnings)));
         }
+
         document.add(salesTable);
 
-        XYChart chart = new XYChartBuilder()
+        document.add(new Paragraph("Total de Ganancias: " + totalEarnings).setBold().setFontSize(16));
+
+        XYChart salesChart = new XYChartBuilder()
                 .width(800)
                 .height(600)
-                .title("Sales by Month")
-                .xAxisTitle("Month")
-                .yAxisTitle("Sales")
+                .title("Ventas por Mes")
+                .xAxisTitle("Mes")
+                .yAxisTitle("Ventas")
                 .theme(Styler.ChartTheme.Matlab)
                 .build();
 
-        int[] months = IntStream.rangeClosed(1, 12).toArray();
-        int[] salesCounts = IntStream.rangeClosed(1, 12)
-                .map(m -> salesByMonth.getOrDefault(Month.of(m), 0L).intValue())
-                .toArray();
+        XYChart earningsChart = new XYChartBuilder()
+                .width(800)
+                .height(600)
+                .title("Ganancias por Mes")
+                .xAxisTitle("Mes")
+                .yAxisTitle("Ganancia")
+                .theme(Styler.ChartTheme.Matlab)
+                .build();
 
-        chart.addSeries("Sales", months, salesCounts);
+        List<Double> months = IntStream.rangeClosed(1, 12).boxed().map(Double::valueOf).collect(Collectors.toList());
+        List<Double> salesCounts = IntStream.rangeClosed(1, 12)
+                .mapToObj(m -> salesByMonth.getOrDefault(Month.of(m), 0L).doubleValue())
+                .collect(Collectors.toList());
+        List<Double> monthlyEarnings = IntStream.rangeClosed(1, 12)
+                .mapToDouble(m -> earningsByMonth.getOrDefault(Month.of(m), 0.0))
+                .boxed()
+                .collect(Collectors.toList());
 
-        byte[] chartBytes = BitmapEncoder.getBitmapBytes(chart, BitmapEncoder.BitmapFormat.PNG);
+        salesChart.addSeries("Sales", months, salesCounts);
+        earningsChart.addSeries("Earnings", months, monthlyEarnings);
 
-        Image img = new Image(com.itextpdf.io.image.ImageDataFactory.create(chartBytes));
-        img.setWidth(UnitValue.createPercentValue(100));
-        document.add(img);
+        byte[] salesChartBytes = BitmapEncoder.getBitmapBytes(salesChart, BitmapEncoder.BitmapFormat.PNG);
+        byte[] earningsChartBytes = BitmapEncoder.getBitmapBytes(earningsChart, BitmapEncoder.BitmapFormat.PNG);
+
+        Image salesImg = new Image(com.itextpdf.io.image.ImageDataFactory.create(salesChartBytes));
+        salesImg.setWidth(UnitValue.createPercentValue(100));
+        document.add(salesImg);
+
+        Image earningsImg = new Image(com.itextpdf.io.image.ImageDataFactory.create(earningsChartBytes));
+        earningsImg.setWidth(UnitValue.createPercentValue(100));
+        document.add(earningsImg);
 
         document.close();
         writer.close();
 
         return pdfFile;
     }
+
 }

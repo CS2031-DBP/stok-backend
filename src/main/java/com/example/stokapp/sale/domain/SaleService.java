@@ -92,7 +92,11 @@ public class SaleService {
 
         Product product = inventory.getProduct();
         double saleAmount = product.getPrice() * request.getAmount();
-        sale.setSaleCant(saleAmount);
+
+        // Redondear saleAmount a 3 decimales
+        BigDecimal bd = new BigDecimal(saleAmount);
+        bd = bd.setScale(3, RoundingMode.HALF_UP);
+        sale.setSaleCant(bd.doubleValue());
 
         Owner owner = ownerRepository.findById(request.getOwnerId())
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
@@ -107,6 +111,7 @@ public class SaleService {
 
         return saleDto;
     }
+
 
     @Transactional
     public void deleteSale(Long ownerId, Long saleId) {

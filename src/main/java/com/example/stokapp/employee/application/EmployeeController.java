@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
     @RequestMapping("/employees")
 public class EmployeeController {
@@ -55,4 +57,11 @@ public class EmployeeController {
         employeeService.updateEmployee(employeeId, updateEmployeeRequest);
         return ResponseEntity.ok("Employee updated");
     }
+
+    @PreAuthorize("hasRole('ROLE_OWNER')")
+    @GetMapping("/owner/{ownerId}")
+    public List<EmployeeDto> getAllEmployees(@PathVariable Long ownerId) {
+        return employeeService.getAllEmployees(ownerId);
+    }
+
 }
