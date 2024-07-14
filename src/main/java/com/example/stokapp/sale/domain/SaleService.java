@@ -92,7 +92,11 @@ public class SaleService {
 
         Product product = inventory.getProduct();
         double saleAmount = product.getPrice() * request.getAmount();
-        sale.setSaleCant(saleAmount);
+
+        // Redondear saleAmount a 3 decimales
+        BigDecimal bd = new BigDecimal(saleAmount);
+        bd = bd.setScale(3, RoundingMode.HALF_UP);
+        sale.setSaleCant(bd.doubleValue());
 
         Owner owner = ownerRepository.findById(request.getOwnerId())
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
@@ -107,6 +111,7 @@ public class SaleService {
 
         return saleDto;
     }
+
 
     @Transactional
     public void deleteSale(Long ownerId, Long saleId) {
@@ -209,5 +214,22 @@ public class SaleService {
         saleDto.setInventoryforSaleDto(inventoryDto);
 
         return saleDto;
+    }
+
+
+    public List<Sale> findByOwnerIdAndMonth(Long ownerId, int month, int year) {
+        ZonedDateTime startDate = ZonedDateTime.of(year, month, 1, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+        ZonedDateTime endDate = startDate.plusMonths(1);
+        return saleRepository.findByOwnerIdAndCreatedAtBetween(ownerId, startDate, endDate);
+    }
+
+    public List<Sale> findByOwnerIdAndYear(Long ownerId, int year) {
+        ZonedDateTime startDate = ZonedDateTime.of(year, 1, 1, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+        ZonedDateTime endDate = startDate.plusYears(1);
+        return saleRepository.findByOwnerIdAndCreatedAtBetween(ownerId, startDate, endDate);
+    }
+
+    public List<Sale> findByOwnerId(Long ownerId) {
+        return saleRepository.findByOwnerId(ownerId);
     }
 }

@@ -14,6 +14,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class EmployeeService {
     @Autowired
@@ -118,4 +121,19 @@ public class EmployeeService {
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
         employeeRepository.delete(employee);
     }
+
+
+    public List<EmployeeDto> getAllEmployees(Long ownerId) {
+        verifyOwnerOrEmployee(ownerId);
+
+        Owner owner = ownerRepository.findById(ownerId)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        List<Employee> employees = owner.getEmployees();
+
+        return employees.stream()
+                .map(employee -> mapper.map(employee, EmployeeDto.class))
+                .collect(Collectors.toList());
+    }
+
 }
