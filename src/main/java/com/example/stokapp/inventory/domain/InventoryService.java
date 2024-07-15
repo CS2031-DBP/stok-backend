@@ -174,4 +174,11 @@ public class InventoryService {
 
         return mapper.map(inventory, InventoryDto.class);
     }
+
+    public InventoryDto getInventoryByProductId(Long ownerId, Long productId){
+        verifyOwnerOrEmployee(ownerId);
+
+        Inventory inventory = inventoryRepository.findByProductId(productId);
+        return mapper.map(inventory, InventoryDto.class);
+    }
 }

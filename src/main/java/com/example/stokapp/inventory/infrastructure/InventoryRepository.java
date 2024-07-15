@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     Page<Inventory> findAllByOwnerId(Long id, Pageable pageable);
+    Inventory findByProductId(Long productId);
 }

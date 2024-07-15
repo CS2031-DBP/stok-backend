@@ -39,7 +39,7 @@ public class ProductService {
     //DELETE PRODUCT
     public void deleteProduct(Long productId) {
         String username = authImpl.getCurrentEmail();
-        if(username == null) {
+        if (username == null) {
             throw new UnauthorizeOperationException("Not allowed");
         }
 
@@ -51,7 +51,7 @@ public class ProductService {
     //UPDATE PRODUCT
     public void updateProduct(Long productId, Product updatedProduct) {
         String username = authImpl.getCurrentEmail();
-        if(username == null) {
+        if (username == null) {
             throw new UnauthorizeOperationException("Not allowed");
         }
 
@@ -98,5 +98,15 @@ public class ProductService {
 
         Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
         return mapper.map(product, ProductWithSupplierDto.class);
+    }
+
+    public ProductDto findProductById(Long productId) {
+        String username = authImpl.getCurrentEmail();
+        if (username == null) {
+            throw new UnauthorizeOperationException("Not allowed");
+        }
+
+        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+        return mapper.map(product, ProductDto.class);
     }
 }

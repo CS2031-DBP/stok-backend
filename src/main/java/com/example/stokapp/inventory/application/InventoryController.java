@@ -56,6 +56,13 @@ public class InventoryController {
         return ResponseEntity.ok(inventory);
     }
 
+    @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')")
+    @GetMapping("/findByProductId/{ownerId}/{productId}")
+    public ResponseEntity<InventoryDto> findInventoryByProductId(@PathVariable Long ownerId, @PathVariable Long productId) {
+        InventoryDto inventory = inventoryService.getInventoryByProductId(ownerId, productId);
+        return ResponseEntity.ok(inventory);
+    }
+
     // REDUCIR STOCK
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')")
     @PatchMapping("/{ownerId}/{inventoryId}/reduce/{quantity}")
