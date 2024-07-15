@@ -4,10 +4,18 @@ import com.example.stokapp.configuration.EmailService;
 import com.example.stokapp.inventory.domain.Inventory;
 import com.example.stokapp.inventory.infrastructure.InventoryRepository;
 
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 
 @Component
 public class SendLowStockEmailListener {
@@ -21,6 +29,24 @@ public class SendLowStockEmailListener {
     @Async
     public void sendLowStockEmailEvent(SendLowStockEmailEvent sendLowStockEmailEvent) {
         Inventory inventory = inventoryRepository.findById(sendLowStockEmailEvent.getInventory().getId()).orElse(null);
-        emailService.sendEmail(sendLowStockEmailEvent.getEmail(), "ALERTA PRODUCTO BAJO EN STOCK", "El siguiente producto presenta un nivel bajo de stock: " + inventory.getProduct().getName() + " " + "\n Cantidad de stock disponible: " + inventory.getStock());
+
+        String htmlContent = loadTemplate("templates/lowStockAlertTemplate.html")
+                .replace("{{productName}}", inventory.getProduct().getName())
+                .replace("{{stockQuantity}}", String.valueOf(inventory.getStock()));
+
+        try {
+            emailService.sendHtmlEmail(sendLowStockEmailEvent.getEmail(), "ALERTA PRODUCTO BAJO EN STOCK", htmlContent, new ClassPathResource("static/stok_logo.png"));
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String loadTemplate(String path) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(path), StandardCharsets.UTF_8))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 }
