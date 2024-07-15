@@ -17,7 +17,6 @@ import java.util.List;
 
 @Component
 public class SalesReportListener {
-
     @Autowired
     private PdfGenerator pdfGenerator;
 
@@ -40,13 +39,12 @@ public class SalesReportListener {
         }
     }
 
+
     //MANDAR ANUAL SIN GRAFICO
     @EventListener
     public void handleAnnualSalesReportEventWithoutGraphic(AnnualSalesReportEvent event) {
         try {
-            List<Sale> sales = saleService.findByOwnerIdAndYear(event.getOwnerId(), event.getYear());
-            String title = "Annual Sales Report for " + event.getYear();
-            File pdfFile = pdfGenerator.generateSalesPdf("annual_sales_report", sales, title);
+            File pdfFile = pdfGenerator.generateAnnualSalesReport(event.getOwnerId(), event.getEmail(), event.getYear());
             emailService.sendEmailWithAttachment(event.getEmail(), "Annual Sales Report", "Please find attached the annual sales report.", pdfFile);
         } catch (IOException | MessagingException e) {
             e.printStackTrace();
@@ -57,13 +55,10 @@ public class SalesReportListener {
     @EventListener
     public void handleAnnualSalesReportEventWithGraphic(AnnualSalesReportEventWithGraphic event) {
         try {
-            File pdfFile = pdfGenerator.generateAnnualSalesReport(event.getOwnerId(), event.getEmail(), event.getYear());
-            emailService.sendEmailWithAttachment(event.getEmail(), "Annual Sales Report", "Please find attached the annual sales report.", pdfFile);
-        } catch (IOException e) {
+            File pdfFile = pdfGenerator.generateAnnualSalesReportWithGraphics(event.getOwnerId(), event.getEmail(), event.getYear());
+            emailService.sendEmailWithAttachment(event.getEmail(), "Annual Sales Report with Graphics", "Please find attached the annual sales report with graphics.", pdfFile);
+        } catch (IOException | MessagingException e) {
             e.printStackTrace();
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
         }
     }
-
 }
