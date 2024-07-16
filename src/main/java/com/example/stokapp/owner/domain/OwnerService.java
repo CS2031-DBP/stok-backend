@@ -3,6 +3,7 @@ package com.example.stokapp.owner.domain;
 import com.example.stokapp.auth.AuthImpl;
 import com.example.stokapp.employee.domain.Employee;
 import com.example.stokapp.employee.domain.EmployeeDto;
+import com.example.stokapp.employee.infrastructure.EmployeeRepository;
 import com.example.stokapp.event.SendEmailToSupplierEvent;
 import com.example.stokapp.event.WelcomeEmailEvent;
 import com.example.stokapp.exceptions.UnauthorizeOperationException;
@@ -18,6 +19,9 @@ import org.aspectj.bridge.IMessage;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +41,8 @@ public class OwnerService {
     private ProductRepository productRepository;
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
     // ELIMINAR OWNER
     public void deleteOwner(Long ownerId) {
@@ -109,5 +115,17 @@ public class OwnerService {
                     return employeeDto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public Page<EmployeeDto> viewAllEmployeesPag(Long ownerId, int page, int size) {
+        if (!authImpl.isOwnerResource(ownerId))
+            throw new UnauthorizeOperationException("Not allowed");
+
+        Owner owner = ownerRepository.findById(ownerId)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Employee> employees = employeeRepository.findAllByOwner(owner, pageable);
+        return employees.map(employee -> mapper.map(employee, EmployeeDto.class));
     }
 }

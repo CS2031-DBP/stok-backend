@@ -3,6 +3,8 @@ package com.example.stokapp.owner.application;
 import com.example.stokapp.employee.domain.EmployeeDto;
 import com.example.stokapp.owner.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,18 @@ public class OwnerController {
     @GetMapping("/viewAllEmployees/{ownerId}")
     public ResponseEntity<List<EmployeeDto>> viewAllEmployees(@PathVariable Long ownerId) {
         return ResponseEntity.ok(ownerService.viewAllEmployees(ownerId));
+    }
+
+    // Endpoint con paginación
+    @PreAuthorize("hasRole('ROLE_OWNER')")
+    @GetMapping("/viewAllEmployeesPag/{ownerId}")
+    public ResponseEntity<Page<EmployeeDto>> viewAllEmployeesPag(
+            @PathVariable Long ownerId,
+            @RequestParam int page,
+            @RequestParam int size) {
+
+        Page<EmployeeDto> response = ownerService.viewAllEmployeesPag(ownerId, page, size);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/me")

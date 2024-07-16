@@ -29,7 +29,7 @@ public class ProductController {
         return ResponseEntity.ok(productList);
     }
 
-    @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')")
+    @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_EMPLOYEE')"   )
     @GetMapping("/{id}")
     public ResponseEntity<ProductWithSupplierDto> findProductById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductById(id));
